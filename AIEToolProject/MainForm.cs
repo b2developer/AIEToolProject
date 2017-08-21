@@ -16,5 +16,29 @@ namespace AIEToolProject
         {
             InitializeComponent();
         }
+
+        /*
+        * newButton_Click 
+        * 
+        * callback when the new button is clicked
+        * 
+        * @param object sender - the object that sent the event
+        * @param EventArgs e - description of the event
+        * @returns void
+        */
+        private void newButton_Click(object sender, EventArgs e)
+        {
+            //create a new EditorForm
+            EditorForm newChild = new EditorForm();
+
+            //set the parent
+            newChild.MdiParent = this;
+
+            //display the newly created child
+            newChild.Show();
+
+            //send the MDI window to the front of the screen
+            newChild.Select();
+        }
     }
 }
