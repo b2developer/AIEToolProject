@@ -16,6 +16,8 @@ namespace AIEToolProject
         //container of behaviour nodes
         List<BehaviourNode> nodes;
 
+        public float scalar = 25.0f;
+
         public EditorForm()
         {
             InitializeComponent();
@@ -46,7 +48,7 @@ namespace AIEToolProject
 
                 //set the position
                 node.position = new Point(mouseE.X, mouseE.Y);
-                node.type = BehaviourType.ACTION;
+                node.type = (MdiParent as MainForm).selectedType;
 
                 nodes.Add(node);
 
@@ -82,18 +84,78 @@ namespace AIEToolProject
                 {
                     case BehaviourType.ACTION:
 
-                        //create the pen and brush to draw the outlined circle with
-                        Pen blackPen = new Pen(Color.Black, 2.0f);
-                        Brush greenBrush = new SolidBrush(Color.Green);
+                        {
+                            //create the pen and brush to draw the outlined circle with
+                            Pen blackPen = new Pen(Color.Black, 2.0f);
+                            Brush greenBrush = new SolidBrush(Color.Green);
 
-                        //define a region to draw the node in
-                        Rectangle region = new Rectangle(b.position.X - 50, b.position.Y - 50, 100, 100);
+                            //define a region to draw the node in
+                            Rectangle region = new Rectangle(b.position.X - (int)scalar, b.position.Y - (int)scalar, (int)scalar * 2, (int)scalar * 2);
 
-                        //draw the node
-                        g.FillPie(greenBrush, region, 0.0f, 360.0f);
-                        g.DrawArc(blackPen, region, 0.0f, 360.0f);
+                            //draw the node
+                            g.FillPie(greenBrush, region, 0.0f, 360.0f);
+                            g.DrawArc(blackPen, region, 0.0f, 360.0f);
+                        }
 
                     break;
+
+                    case BehaviourType.CONDITION:
+
+                        {
+                            //create the pen and brush to draw the outlined circle with
+                            Pen blackPen = new Pen(Color.Black, 2.0f);
+                            Brush yellowBrush = new SolidBrush(Color.Yellow);
+
+                            //define a region to draw the node in
+                            Rectangle region = new Rectangle(b.position.X - (int)scalar, b.position.Y - (int)scalar, (int)scalar * 2, (int)scalar * 2);
+
+                            //draw the node
+                            g.FillPie(yellowBrush, region, 0.0f, 360.0f);
+                            g.DrawArc(blackPen, region, 0.0f, 360.0f);
+                        }
+
+                    break;
+
+                    case BehaviourType.SELECTOR:
+
+                        {
+                            //create the pen and brush to draw the diamond with
+                            Pen blackPen = new Pen(Color.Black, 2.0f);
+                            Brush blueBrush = new SolidBrush(Color.Aqua);
+
+                            //define the polygon to draw
+                            Point[] diamond = new Point[] 
+                            {
+                                new Point(0 + b.position.X, (int)scalar + b.position.Y),
+                                new Point((int)scalar + b.position.X, 0 + b.position.Y),
+                                new Point(0 + b.position.X, -(int)scalar + b.position.Y),
+                                new Point(-(int)scalar + b.position.X, 0 + b.position.Y)
+                            };
+
+                            //draw the node
+                            g.FillPolygon(blueBrush, diamond);
+                            g.DrawPolygon(blackPen, diamond);
+                        }
+
+                   break;
+
+                    case BehaviourType.SEQUENCE:
+
+                        {
+                            //create the pen and brush to draw the rectangle with
+                            Pen blackPen = new Pen(Color.Black, 2.0f);
+                            Brush blueBrush = new SolidBrush(Color.Aqua);
+
+                            //define a region to draw the node in
+                            Rectangle region = new Rectangle(b.position.X - (int)scalar, b.position.Y - (int)(scalar * 0.66f), (int)scalar * 2, (int)(scalar * 1.66f));
+
+                            //draw the node
+                            g.FillRectangle(blueBrush, region);
+                            g.DrawRectangle(blackPen, region);
+                        }
+
+                    break;
+
                 }
             }
         }

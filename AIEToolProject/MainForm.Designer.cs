@@ -40,13 +40,13 @@
             this.copyButton = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteButton = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolPanel = new System.Windows.Forms.Panel();
-            this.actionButton = new System.Windows.Forms.Button();
             this.windowButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.conditionButton = new System.Windows.Forms.Button();
-            this.selectorButton = new System.Windows.Forms.Button();
-            this.sequenceButton = new System.Windows.Forms.Button();
+            this.toolPanel = new System.Windows.Forms.Panel();
             this.decoratorButton = new System.Windows.Forms.Button();
+            this.sequenceButton = new System.Windows.Forms.Button();
+            this.selectorButton = new System.Windows.Forms.Button();
+            this.conditionButton = new System.Windows.Forms.Button();
+            this.actionButton = new System.Windows.Forms.Button();
             this.MenuStrip.SuspendLayout();
             this.toolPanel.SuspendLayout();
             this.SuspendLayout();
@@ -80,26 +80,26 @@
             // newButton
             // 
             this.newButton.Name = "newButton";
-            this.newButton.Size = new System.Drawing.Size(152, 22);
+            this.newButton.Size = new System.Drawing.Size(107, 22);
             this.newButton.Text = "New";
             this.newButton.Click += new System.EventHandler(this.newButton_Click);
             // 
             // openButton
             // 
             this.openButton.Name = "openButton";
-            this.openButton.Size = new System.Drawing.Size(152, 22);
+            this.openButton.Size = new System.Drawing.Size(107, 22);
             this.openButton.Text = "Open";
             // 
             // saveButton
             // 
             this.saveButton.Name = "saveButton";
-            this.saveButton.Size = new System.Drawing.Size(152, 22);
+            this.saveButton.Size = new System.Drawing.Size(107, 22);
             this.saveButton.Text = "Save";
             // 
             // exportButton
             // 
             this.exportButton.Name = "exportButton";
-            this.exportButton.Size = new System.Drawing.Size(152, 22);
+            this.exportButton.Size = new System.Drawing.Size(107, 22);
             this.exportButton.Text = "Export";
             // 
             // editButton
@@ -136,6 +136,12 @@
             this.settingsButton.Size = new System.Drawing.Size(61, 20);
             this.settingsButton.Text = "Settings";
             // 
+            // windowButton
+            // 
+            this.windowButton.Name = "windowButton";
+            this.windowButton.Size = new System.Drawing.Size(63, 20);
+            this.windowButton.Text = "Window";
+            // 
             // toolPanel
             // 
             this.toolPanel.AutoSize = true;
@@ -152,38 +158,15 @@
             this.toolPanel.Size = new System.Drawing.Size(40, 418);
             this.toolPanel.TabIndex = 1;
             // 
-            // actionButton
+            // decoratorButton
             // 
-            this.actionButton.Image = ((System.Drawing.Image)(resources.GetObject("actionButton.Image")));
-            this.actionButton.Location = new System.Drawing.Point(5, 12);
-            this.actionButton.Name = "actionButton";
-            this.actionButton.Size = new System.Drawing.Size(32, 32);
-            this.actionButton.TabIndex = 0;
-            this.actionButton.UseVisualStyleBackColor = false;
-            // 
-            // windowButton
-            // 
-            this.windowButton.Name = "windowButton";
-            this.windowButton.Size = new System.Drawing.Size(63, 20);
-            this.windowButton.Text = "Window";
-            // 
-            // conditionButton
-            // 
-            this.conditionButton.Image = ((System.Drawing.Image)(resources.GetObject("conditionButton.Image")));
-            this.conditionButton.Location = new System.Drawing.Point(5, 50);
-            this.conditionButton.Name = "conditionButton";
-            this.conditionButton.Size = new System.Drawing.Size(32, 32);
-            this.conditionButton.TabIndex = 1;
-            this.conditionButton.UseVisualStyleBackColor = false;
-            // 
-            // selectorButton
-            // 
-            this.selectorButton.Image = ((System.Drawing.Image)(resources.GetObject("selectorButton.Image")));
-            this.selectorButton.Location = new System.Drawing.Point(5, 88);
-            this.selectorButton.Name = "selectorButton";
-            this.selectorButton.Size = new System.Drawing.Size(32, 32);
-            this.selectorButton.TabIndex = 2;
-            this.selectorButton.UseVisualStyleBackColor = false;
+            this.decoratorButton.Image = ((System.Drawing.Image)(resources.GetObject("decoratorButton.Image")));
+            this.decoratorButton.Location = new System.Drawing.Point(5, 164);
+            this.decoratorButton.Name = "decoratorButton";
+            this.decoratorButton.Size = new System.Drawing.Size(32, 32);
+            this.decoratorButton.TabIndex = 4;
+            this.decoratorButton.UseVisualStyleBackColor = false;
+            this.decoratorButton.Click += new System.EventHandler(this.decoratorButton_Click);
             // 
             // sequenceButton
             // 
@@ -193,15 +176,37 @@
             this.sequenceButton.Size = new System.Drawing.Size(32, 32);
             this.sequenceButton.TabIndex = 3;
             this.sequenceButton.UseVisualStyleBackColor = false;
+            this.sequenceButton.Click += new System.EventHandler(this.sequenceButton_Click);
             // 
-            // decoratorButton
+            // selectorButton
             // 
-            this.decoratorButton.Image = ((System.Drawing.Image)(resources.GetObject("decoratorButton.Image")));
-            this.decoratorButton.Location = new System.Drawing.Point(5, 164);
-            this.decoratorButton.Name = "decoratorButton";
-            this.decoratorButton.Size = new System.Drawing.Size(32, 32);
-            this.decoratorButton.TabIndex = 4;
-            this.decoratorButton.UseVisualStyleBackColor = false;
+            this.selectorButton.Image = ((System.Drawing.Image)(resources.GetObject("selectorButton.Image")));
+            this.selectorButton.Location = new System.Drawing.Point(5, 88);
+            this.selectorButton.Name = "selectorButton";
+            this.selectorButton.Size = new System.Drawing.Size(32, 32);
+            this.selectorButton.TabIndex = 2;
+            this.selectorButton.UseVisualStyleBackColor = false;
+            this.selectorButton.Click += new System.EventHandler(this.selectorButton_Click);
+            // 
+            // conditionButton
+            // 
+            this.conditionButton.Image = ((System.Drawing.Image)(resources.GetObject("conditionButton.Image")));
+            this.conditionButton.Location = new System.Drawing.Point(5, 50);
+            this.conditionButton.Name = "conditionButton";
+            this.conditionButton.Size = new System.Drawing.Size(32, 32);
+            this.conditionButton.TabIndex = 1;
+            this.conditionButton.UseVisualStyleBackColor = false;
+            this.conditionButton.Click += new System.EventHandler(this.conditionButton_Click);
+            // 
+            // actionButton
+            // 
+            this.actionButton.Image = ((System.Drawing.Image)(resources.GetObject("actionButton.Image")));
+            this.actionButton.Location = new System.Drawing.Point(5, 12);
+            this.actionButton.Name = "actionButton";
+            this.actionButton.Size = new System.Drawing.Size(32, 32);
+            this.actionButton.TabIndex = 0;
+            this.actionButton.UseVisualStyleBackColor = false;
+            this.actionButton.Click += new System.EventHandler(this.actionButton_Click);
             // 
             // MainForm
             // 
