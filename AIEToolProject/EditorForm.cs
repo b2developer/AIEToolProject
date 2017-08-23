@@ -28,7 +28,7 @@ namespace AIEToolProject
         public List<BehaviourNode> nodes;
 
         //default radius of all nodes
-        public float scalar = 25.0f;
+        public float scalar = 45.0f;
 
         //empty labels that define the scrollable area
         public Label topLeft = null;
@@ -182,7 +182,36 @@ namespace AIEToolProject
                         }
                         else if (mouseE.Button == MouseButtons.Right)
                         {
-                            nodes.Remove(selectedNode);
+                            
+                            //circles representing the connector
+                            Circle parentCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[0], b.collider.radius * 0.33f);
+                            Circle childCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[1], b.collider.radius * 0.33f);
+
+                            //check for intersections with the connector circles before removing the node
+                            if (childCircle.IntersectingPoint(trueMousePos.X, trueMousePos.Y) && b.type != BehaviourType.CONDITION && b.type != BehaviourType.ACTION)
+                            {
+                                //iterate through all of the children, disconnecting them from this parent
+                                foreach (BehaviourNode c in b.children)
+                                {
+                                    c.parent = null;
+                                }
+
+                                b.children.Clear();
+                            }
+                            else if (parentCircle.IntersectingPoint(trueMousePos.X, trueMousePos.Y))
+                            {
+                                //check that the node has a parent
+                                if (b.parent != null)
+                                {
+                                    b.parent.children.Remove(b);
+                                }
+
+                                b.parent = null;
+                            }
+                            else
+                            {
+                                TreeHelper.RemoveFromTree(nodes, selectedNode);
+                            }
                         }
 
                         break;
@@ -236,7 +265,7 @@ namespace AIEToolProject
 
                             node.type = (MdiParent as MainForm).selectedType;
 
-                            node.connectorOffsets = new float[] { -node.collider.radius * 0.9f, node.collider.radius * 0.9f};
+                            node.connectorOffsets = new float[] { -node.collider.radius * 0.7f, node.collider.radius * 0.7f};
 
                             nodes.Add(node);
                         }
@@ -245,65 +274,71 @@ namespace AIEToolProject
                 else
                 {
                     if (selection == SelectionType.CHILD)
+                    { 
+                        //check for collision with all parent connectors
+                        foreach (BehaviourNode b in nodes)
                         {
-                            //check for collision with all parent connectors
-                            foreach (BehaviourNode b in nodes)
+                            //don't check for self collisions
+                            if (b == selectedNode)
                             {
-                                //don't check for self collisions
-                                if (b == selectedNode)
-                                {
-                                    continue;
-                                }
-
-                                //get the circle of the parent connector
-                                Circle parentCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[0], b.collider.radius * 0.33f);
-
-                                //coordinates of the mouse in global space
-                                float mx = mouseE.X + scrollPos.X;
-                                float my = mouseE.Y + scrollPos.Y;
-
-                                //if the parent connector is intersecting
-                                if (parentCircle.IntersectingPoint(mx, my))
+                                continue;
+                            }
+                    
+                            //get the circle of the parent connector
+                            Circle parentCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[0], b.collider.radius * 0.33f);
+                    
+                            //coordinates of the mouse in global space
+                            float mx = mouseE.X + scrollPos.X;
+                            float my = mouseE.Y + scrollPos.Y;
+                    
+                            //if the parent connector is intersecting
+                            if (parentCircle.IntersectingPoint(mx, my))
+                            {
+                                if (!TreeHelper.IsCyclic(selectedNode, b))
                                 {
                                     //form a connection
                                     selectedNode.children.Add(b);
                                     b.parent = selectedNode;
-
-                                    break;
                                 }
+                    
+                                break;
                             }
-
                         }
-                        else if (selection == SelectionType.PARENT)
+                    
+                    }
+                    else if (selection == SelectionType.PARENT)
+                    {
+                        //check for collision with all child connectors
+                        foreach (BehaviourNode b in nodes)
                         {
-                            //check for collision with all child connectors
-                            foreach (BehaviourNode b in nodes)
+                            //don't check for self collisions
+                            if (b == selectedNode)
                             {
-                                //don't check for self collisions
-                                if (b == selectedNode)
-                                {
-                                    continue;
-                                }
-
-                                //get the circle of the child connector
-                                Circle childCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[1], b.collider.radius * 0.33f);
-
-                                //coordinates of the mouse in global space
-                                float mx = mouseE.X + scrollPos.X;
-                                float my = mouseE.Y + scrollPos.Y;
-
-                                //if the child connector is intersecting
-                                if (childCircle.IntersectingPoint(mx, my))
+                                continue;
+                            }
+                    
+                            //get the circle of the child connector
+                            Circle childCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[1], b.collider.radius * 0.33f);
+                    
+                            //coordinates of the mouse in global space
+                            float mx = mouseE.X + scrollPos.X;
+                            float my = mouseE.Y + scrollPos.Y;
+                    
+                            //if the child connector is intersecting
+                            if (childCircle.IntersectingPoint(mx, my))
+                            {
+                                if (!TreeHelper.IsCyclic(selectedNode, b))
                                 {
                                     //form a connection
                                     selectedNode.parent = b;
                                     b.children.Add(selectedNode);
-
-                                    break;
                                 }
+                    
+                                break;
                             }
                         }
-
+                    }
+                    
                     //deselect the node
                     selectedNode = null;
 
@@ -447,6 +482,7 @@ namespace AIEToolProject
             drawNodes(e);
             drawConnections(e);
             drawConnectors(e);
+
         }
 
 

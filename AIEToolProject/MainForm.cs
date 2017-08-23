@@ -125,5 +125,10 @@ namespace AIEToolProject
         {
             selectedType = BehaviourType.DECORATOR;
         }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
