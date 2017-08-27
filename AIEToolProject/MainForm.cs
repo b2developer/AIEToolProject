@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
+using System.Xml.Serialization;
 using AIEToolProject.Source;
 
 namespace AIEToolProject
@@ -47,7 +49,6 @@ namespace AIEToolProject
         }
 
 
-
         /*
         * actionButton_Click 
         * 
@@ -61,7 +62,6 @@ namespace AIEToolProject
         {
             selectedType = BehaviourType.ACTION;
         }
-
 
 
         /*
@@ -79,7 +79,6 @@ namespace AIEToolProject
         }
 
 
-
         /*
         * selectorButton_Click 
         * 
@@ -93,8 +92,6 @@ namespace AIEToolProject
         {
             selectedType = BehaviourType.SELECTOR;
         }
-
-
 
         /*
         * sequenceButton_Click 
@@ -111,11 +108,10 @@ namespace AIEToolProject
         }
 
 
-
         /*
         * decoratorButton_Click 
         * 
-        * callback when the sequence button is clicked
+        * callback when the decorator button is clicked
         * 
         * @param object sender - the object that sent the event
         * @param EventArgs e - description of the event
@@ -126,9 +122,96 @@ namespace AIEToolProject
             selectedType = BehaviourType.DECORATOR;
         }
 
+
         private void MainForm_Load(object sender, EventArgs e)
         {
 
+        }
+  
+
+        /*
+        * openButton_Click 
+        * 
+        * callback when the open button is clicked, opens an additional file dialog
+        * 
+        * @param object sender - the object that sent the event
+        * @param EventArgs e - description of the event
+        * @returns void
+        */
+        private void openButton_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            //only allow XML files as input
+            openFileDialog.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*";
+            openFileDialog.FilterIndex = 2;
+            openFileDialog.RestoreDirectory = true;
+
+            //check that the open dialog opened properly
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                //create a new EditorForm
+                EditorForm newChild = new EditorForm();
+
+                //only include the name of the file, not the extension
+                newChild.Text = openFileDialog.SafeFileName.Split('.')[0];
+
+                //set the parent
+                newChild.MdiParent = this;
+
+                //display the newly created child
+                newChild.Show();
+
+                //send the MDI window to the front of the screen
+                newChild.Select();
+
+                //create a de-serialiser object for the tree
+                XmlSerializer serialiser = new XmlSerializer(typeof(BehaviourTree));
+
+                //create a stream reader object for the xml reader
+                StreamReader streamReader = new StreamReader(openFileDialog.FileName);
+
+                //write the object to the stream
+                newChild.tree = serialiser.Deserialize(streamReader) as BehaviourTree;
+
+                streamReader.Close();
+            }
+        }
+
+
+        /*
+        * saveButton_Click 
+        * 
+        * callback when the save button is clicked, opens an additional file dialog
+        * 
+        * @param object sender - the object that sent the event
+        * @param EventArgs e - description of the event
+        * @returns void
+        */
+        private void saveButton_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+            //only save as an XML
+            saveFileDialog.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*";
+            saveFileDialog.FilterIndex = 2;
+            saveFileDialog.RestoreDirectory = true;
+
+            //check that the save dialog opened properly
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                EditorForm activeChild = (this.ActiveMdiChild as EditorForm);
+                activeChild.tree.Serialise(saveFileDialog.FileName);
+
+                //string splicing to get the desired format
+                string fullPath = saveFileDialog.FileName;
+                string[] splitPath = fullPath.Split('\\');
+                string pathName = splitPath[splitPath.Length - 1];
+                string name = pathName.Split('.')[0];
+
+                //only include the name of the file, not the extension
+                activeChild.Text = name;
+            }
         }
     }
 }

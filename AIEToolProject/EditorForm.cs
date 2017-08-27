@@ -21,14 +21,16 @@ namespace AIEToolProject
     }
 
 
-
     public partial class EditorForm : Form
     {
         //container of behaviour nodes
-        public List<BehaviourNode> nodes;
+        public BehaviourTree tree;
 
         //default radius of all nodes
         public float scalar = 45.0f;
+
+        //proportional radius of the connector circles
+        public float connectorRatio = 0.33f;
 
         //empty labels that define the scrollable area
         public Label topLeft = null;
@@ -53,7 +55,9 @@ namespace AIEToolProject
         {
             InitializeComponent();
 
-            nodes = new List<BehaviourNode>();
+            tree = new BehaviourTree();
+
+            tree.nodes = new List<BehaviourNode>();
 
             topLeft = new Label();
             topLeft.Size = new Size(0, 0);
@@ -84,14 +88,14 @@ namespace AIEToolProject
             Point bottomRightBest = new Point();
 
             //default setting
-            if (nodes.Count > 0)
+            if (tree.nodes.Count > 0)
             {
-                topLeftBest = new Point((int)nodes[0].collider.x, (int)nodes[0].collider.y);
-                bottomRightBest = new Point((int)nodes[0].collider.x, (int)nodes[0].collider.y);
+                topLeftBest = new Point((int)tree.nodes[0].collider.x, (int)tree.nodes[0].collider.y);
+                bottomRightBest = new Point((int)tree.nodes[0].collider.x, (int)tree.nodes[0].collider.y);
             }
 
             //iterate through all nodes in the nodes container
-            foreach (BehaviourNode b in nodes)
+            foreach (BehaviourNode b in tree.nodes)
             {
                 //move the left limit if it too close
                 if (topLeftBest.X > (int)b.collider.x)
@@ -150,7 +154,7 @@ namespace AIEToolProject
                 Point trueMousePos = new Point(mouseE.Location.X + scrollPos.X, mouseE.Location.Y + scrollPos.Y);
 
                 //iterate through all nodes, checking for collision with the mouse
-                foreach (BehaviourNode b in nodes)
+                foreach (BehaviourNode b in tree.nodes)
                 { 
                     //test if the circle is intersecting the mouse position
                     if (b.collider.IntersectingPoint(trueMousePos.X, trueMousePos.Y))
@@ -162,8 +166,8 @@ namespace AIEToolProject
                         {
 
                             //circles representing the connector
-                            Circle parentCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[0], b.collider.radius * 0.33f);
-                            Circle childCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[1], b.collider.radius * 0.33f);
+                            Circle parentCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[0], b.collider.radius * connectorRatio);
+                            Circle childCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[1], b.collider.radius * connectorRatio);
 
                             //check for intersections with the connector circles before accepting the node
                             if (childCircle.IntersectingPoint(trueMousePos.X, trueMousePos.Y) && b.type != BehaviourType.CONDITION && b.type != BehaviourType.ACTION)
@@ -184,8 +188,8 @@ namespace AIEToolProject
                         {
                             
                             //circles representing the connector
-                            Circle parentCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[0], b.collider.radius * 0.33f);
-                            Circle childCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[1], b.collider.radius * 0.33f);
+                            Circle parentCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[0], b.collider.radius * connectorRatio);
+                            Circle childCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[1], b.collider.radius * connectorRatio);
 
                             //check for intersections with the connector circles before removing the node
                             if (childCircle.IntersectingPoint(trueMousePos.X, trueMousePos.Y) && b.type != BehaviourType.CONDITION && b.type != BehaviourType.ACTION)
@@ -210,7 +214,7 @@ namespace AIEToolProject
                             }
                             else
                             {
-                                TreeHelper.RemoveFromTree(nodes, selectedNode);
+                                TreeHelper.RemoveFromTree(tree.nodes, selectedNode);
                             }
                         }
 
@@ -267,7 +271,7 @@ namespace AIEToolProject
 
                             node.connectorOffsets = new float[] { -node.collider.radius * 0.7f, node.collider.radius * 0.7f};
 
-                            nodes.Add(node);
+                            tree.nodes.Add(node);
                         }
                     }
                 }
@@ -276,7 +280,7 @@ namespace AIEToolProject
                     if (selection == SelectionType.CHILD)
                     { 
                         //check for collision with all parent connectors
-                        foreach (BehaviourNode b in nodes)
+                        foreach (BehaviourNode b in tree.nodes)
                         {
                             //don't check for self collisions
                             if (b == selectedNode)
@@ -285,7 +289,7 @@ namespace AIEToolProject
                             }
                     
                             //get the circle of the parent connector
-                            Circle parentCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[0], b.collider.radius * 0.33f);
+                            Circle parentCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[0], b.collider.radius * connectorRatio);
                     
                             //coordinates of the mouse in global space
                             float mx = mouseE.X + scrollPos.X;
@@ -309,7 +313,7 @@ namespace AIEToolProject
                     else if (selection == SelectionType.PARENT)
                     {
                         //check for collision with all child connectors
-                        foreach (BehaviourNode b in nodes)
+                        foreach (BehaviourNode b in tree.nodes)
                         {
                             //don't check for self collisions
                             if (b == selectedNode)
@@ -318,7 +322,7 @@ namespace AIEToolProject
                             }
                     
                             //get the circle of the child connector
-                            Circle childCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[1], b.collider.radius * 0.33f);
+                            Circle childCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[1], b.collider.radius * connectorRatio);
                     
                             //coordinates of the mouse in global space
                             float mx = mouseE.X + scrollPos.X;
@@ -504,7 +508,7 @@ namespace AIEToolProject
             Graphics g = e.Graphics;
 
             //iterate through all nodes in the nodes container
-            foreach (BehaviourNode b in nodes)
+            foreach (BehaviourNode b in tree.nodes)
             {
 
                 //deduct what type of node it is
@@ -661,10 +665,10 @@ namespace AIEToolProject
             Pen blackPen = new Pen(Color.Black, 2.0f);
 
             //iterate through all nodes in the node list
-            foreach (BehaviourNode b in nodes)
+            foreach (BehaviourNode b in tree.nodes)
             {
                 //position of the child connector
-                float cx = b.collider.x - validScrollPos.X;
+                float cx = b.collider.x - validScrollPos.X;sx
                 float cy = b.collider.y + b.connectorOffsets[1] - validScrollPos.Y;
 
                 //get the size of the children array
@@ -716,7 +720,7 @@ namespace AIEToolProject
             Graphics g = e.Graphics;
 
             //iterate through all nodes in the node list
-            foreach (BehaviourNode b in nodes)
+            foreach (BehaviourNode b in tree.nodes)
             {
                 //create the pen and brush to draw the outlined circle with
                 Pen blackPen = new Pen(Color.Black, 2.0f);

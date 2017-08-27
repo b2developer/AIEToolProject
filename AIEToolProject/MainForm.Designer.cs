@@ -80,26 +80,28 @@
             // newButton
             // 
             this.newButton.Name = "newButton";
-            this.newButton.Size = new System.Drawing.Size(107, 22);
+            this.newButton.Size = new System.Drawing.Size(152, 22);
             this.newButton.Text = "New";
             this.newButton.Click += new System.EventHandler(this.newButton_Click);
             // 
             // openButton
             // 
             this.openButton.Name = "openButton";
-            this.openButton.Size = new System.Drawing.Size(107, 22);
+            this.openButton.Size = new System.Drawing.Size(152, 22);
             this.openButton.Text = "Open";
+            this.openButton.Click += new System.EventHandler(this.openButton_Click);
             // 
             // saveButton
             // 
             this.saveButton.Name = "saveButton";
-            this.saveButton.Size = new System.Drawing.Size(107, 22);
+            this.saveButton.Size = new System.Drawing.Size(152, 22);
             this.saveButton.Text = "Save";
+            this.saveButton.Click += new System.EventHandler(this.saveButton_Click);
             // 
             // exportButton
             // 
             this.exportButton.Name = "exportButton";
-            this.exportButton.Size = new System.Drawing.Size(107, 22);
+            this.exportButton.Size = new System.Drawing.Size(152, 22);
             this.exportButton.Text = "Export";
             // 
             // editButton

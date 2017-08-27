@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
+using System.Xml.Serialization;
 
 namespace AIEToolProject.Source
 {
@@ -30,7 +32,7 @@ namespace AIEToolProject.Source
     * 
     * author: Bradley Booth, Academy of Interactive Entertainment, 2017
     */
-    public class BehaviourNode : IComparable
+    public class BehaviourNode
     {
         //name of the node
         public string name;
@@ -44,12 +46,12 @@ namespace AIEToolProject.Source
         //type of node that the behaviour node is
         public BehaviourType type = BehaviourType.ACTION;
 
-        //link to the node that holds this node
-        public BehaviourNode parent = null;
-
         //link to the children that this node holds
         public List<BehaviourNode> children;
 
+        [XmlIgnore]
+        //link to the node that holds this node
+        public BehaviourNode parent = null;
 
         /*
         * BehaviourNode()
