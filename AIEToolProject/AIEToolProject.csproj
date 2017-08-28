@@ -78,6 +78,10 @@
     <Compile Include="Source\BehaviourNode.cs" />
     <Compile Include="Source\Circle.cs" />
     <Compile Include="Source\BehaviourTree.cs" />
+    <Compile Include="Source\Selection\ConnectionSelection.cs" />
+    <Compile Include="Source\Selection\NodeSelection.cs" />
+    <Compile Include="Source\Selection\Selection.cs" />
+    <Compile Include="Source\SnapshotContainer.cs" />
     <Compile Include="Source\TreeHelper.cs" />
     <EmbeddedResource Include="EditorForm.resx">
       <DependentUpon>EditorForm.cs</DependentUpon>

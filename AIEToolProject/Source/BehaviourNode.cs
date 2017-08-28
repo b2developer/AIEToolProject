@@ -27,15 +27,19 @@ namespace AIEToolProject.Source
     /*
     * class BehaviourNode
     * utilises the IComparable interface
+    * utilises the ICloneable interface
     * 
     * represents a node in a tree structure
     * 
     * author: Bradley Booth, Academy of Interactive Entertainment, 2017
     */
-    public class BehaviourNode
+    public class BehaviourNode : IComparable, ICloneable
     {
         //name of the node
         public string name;
+
+        //index of the node in the nodes container
+        public int index = 0;
 
         //the circle that represents the node
         public Circle collider;
@@ -77,6 +81,36 @@ namespace AIEToolProject.Source
         {
             //behaviour nodes have IComparable implemented, allowing children to be sorted this way
             children.Sort();
+        }
+
+
+        /*
+        * Clone 
+        * implements ICloneable's Clone()
+        * 
+        * clones the behaviour node
+        * 
+        * @returns object - the cloned behaviour node
+        */
+        public object Clone()
+        {
+            BehaviourNode clone = new BehaviourNode();
+
+            clone.name = name;
+            clone.index = index;
+
+            //clone the collider
+            clone.collider = new Circle();
+            clone.collider.x = collider.x;
+            clone.collider.y = collider.y;
+            clone.collider.radius = collider.radius;
+
+            clone.connectorOffsets = connectorOffsets;
+            clone.type = type;
+            clone.parent = parent;
+            clone.children = children;
+
+            return clone;
         }
 
 

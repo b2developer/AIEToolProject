@@ -8,23 +8,18 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AIEToolProject.Source;
+using AIEToolProject.Source.Selection;
 
 namespace AIEToolProject
 {
-    //enum type for to identify the type of selection made
-    public enum SelectionType
-    {
-        NULL,
-        NODE,
-        PARENT, //parent connector
-        CHILD, //child connector
-    }
-
 
     public partial class EditorForm : Form
     {
-        //container of behaviour nodes
-        public BehaviourTree tree;
+        //container of behaviour trees
+        public SnapshotContainer snapshots = null;
+
+        //current selection being made
+        public Selection currentSelection = null;
 
         //default radius of all nodes
         public float scalar = 45.0f;
@@ -39,12 +34,6 @@ namespace AIEToolProject
         //remembers the last valid scroll position
         public Point validScrollPos = new Point(0, 0);
 
-        //the type of selection being made (node movement, connection)
-        public SelectionType selection = SelectionType.NULL;
-
-        //the node being selected (or one of it's connections)
-        public BehaviourNode selectedNode = null;
-
         //data for a temporary line to draw when a connection is being formed
         public float tx1 = 0.0f;
         public float tx2 = 0.0f;
@@ -55,9 +44,10 @@ namespace AIEToolProject
         {
             InitializeComponent();
 
-            tree = new BehaviourTree();
-
-            tree.nodes = new List<BehaviourNode>();
+            //create the snapshot container and add a default tree
+            snapshots = new SnapshotContainer();
+            snapshots.Add(new BehaviourTree());
+            snapshots.First.nodes = new List<BehaviourNode>();
 
             topLeft = new Label();
             topLeft.Size = new Size(0, 0);
@@ -67,6 +57,35 @@ namespace AIEToolProject
 
             this.Controls.Add(topLeft);
             this.Controls.Add(bottomRight);
+
+        }
+
+
+        /*
+        * Record
+        * 
+        * copies the current tree, allows the program 
+        * to remember the previous state if any action
+        * is performed
+        * 
+        * @returns void
+        */
+        public void Record()
+        {
+            snapshots.Add(snapshots.First);
+        }
+
+
+        /*
+        * Undo
+        * 
+        * pops the latest addition to the tree
+        * 
+        * @returns void
+        */
+        public void Undo()
+        {
+            snapshots.Add(snapshots.First);
         }
 
 
@@ -88,14 +107,14 @@ namespace AIEToolProject
             Point bottomRightBest = new Point();
 
             //default setting
-            if (tree.nodes.Count > 0)
+            if (snapshots.First.nodes.Count > 0)
             {
-                topLeftBest = new Point((int)tree.nodes[0].collider.x, (int)tree.nodes[0].collider.y);
-                bottomRightBest = new Point((int)tree.nodes[0].collider.x, (int)tree.nodes[0].collider.y);
+                topLeftBest = new Point((int)snapshots.First.nodes[0].collider.x, (int)snapshots.First.nodes[0].collider.y);
+                bottomRightBest = new Point((int)snapshots.First.nodes[0].collider.x, (int)snapshots.First.nodes[0].collider.y);
             }
 
             //iterate through all nodes in the nodes container
-            foreach (BehaviourNode b in tree.nodes)
+            foreach (BehaviourNode b in snapshots.First.nodes)
             {
                 //move the left limit if it too close
                 if (topLeftBest.X > (int)b.collider.x)
@@ -130,9 +149,143 @@ namespace AIEToolProject
 
 
         /*
+        * GenerateSelection 
+        * 
+        * creates the appropriate selection given
+        * the position of the mouse relative to the 
+        * nodes
+        * 
+        * @param mouseEventArgs mouseE - the mouse state arguments
+        * @param Point trueMousePos - position of the mouse relative to the screen
+        * @returns Selection - the new selection object
+        */
+        private Selection GenerateSelection(MouseEventArgs mouseE, Point trueMousePos)
+        {
+            //iterate through all nodes, checking for collision with the mouse
+            foreach (BehaviourNode b in snapshots.First.nodes)
+            {
+                //test if the circle is intersecting the mouse position
+                if (b.collider.IntersectingPoint(trueMousePos.X, trueMousePos.Y))
+                {
+                    //remember the selected node
+                    BehaviourNode s = b;
+
+                    //circles representing the connector
+                    Circle parentCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[1], b.collider.radius * connectorRatio);
+                    Circle childCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[0], b.collider.radius * connectorRatio);
+
+                    //check for intersections with the connector circles before accepting the node
+                    if (childCircle.IntersectingPoint(trueMousePos.X, trueMousePos.Y))
+                    {
+                        currentSelection = new ConnectionSelection();
+
+                        currentSelection.mouseArgs = mouseE;
+
+                        //down cast the selection
+                        ConnectionSelection trueSelection = (currentSelection as ConnectionSelection);
+
+                        //give the selection it's values
+                        trueSelection.form = this;
+                        trueSelection.node = s;
+                        trueSelection.type = ConnectionType.CHILDREN;
+
+                        //check which mouse button is being pressed
+                        if (mouseE.Button == MouseButtons.Left)
+                        {
+                            currentSelection.LeftDown();
+                        }
+                        else if (mouseE.Button == MouseButtons.Right)
+                        {
+                            currentSelection.RightDown();
+                        }
+
+                        return currentSelection;
+
+                    }   
+                    else if (parentCircle.IntersectingPoint(trueMousePos.X, trueMousePos.Y) && b.type != BehaviourType.CONDITION && b.type != BehaviourType.ACTION)
+                    {
+                        currentSelection = new ConnectionSelection();
+
+                        //down cast the selection
+                        ConnectionSelection trueSelection = (currentSelection as ConnectionSelection);
+
+                        currentSelection.mouseArgs = mouseE;
+
+                        //give the selection it's values
+                        trueSelection.form = this;
+                        trueSelection.node = s;
+                        trueSelection.type = ConnectionType.PARENT;
+
+                        //check which mouse button is being pressed
+                        if (mouseE.Button == MouseButtons.Left)
+                        {
+                            currentSelection.LeftDown();
+                        }
+                        else if (mouseE.Button == MouseButtons.Right)
+                        {
+                            currentSelection.RightDown();
+
+                            currentSelection = null;
+
+                            return null;
+                        }
+
+                        return currentSelection;
+                    }
+                    else
+                    {
+                        currentSelection = new NodeSelection();
+
+                        currentSelection.mouseArgs = mouseE;
+
+                        //down cast the selection
+                        NodeSelection trueSelection = (currentSelection as NodeSelection);
+
+                        //give the selection it's values
+                        trueSelection.form = this;
+                        trueSelection.node = s;
+
+                        //check which mouse button is being pressed
+                        if (mouseE.Button == MouseButtons.Left)
+                        {
+                            currentSelection.LeftDown();
+                        }
+                        else if (mouseE.Button == MouseButtons.Right)
+                        {
+                            currentSelection.RightDown();
+
+                            //remove the node's link to it's children
+                            s.children.Clear();
+
+                            //remove the node's parent link (if it has one)
+                            if (s.parent != null)
+                            {
+                                s.parent.children.Remove(s);
+                            }
+
+                            //remove the node from the tree
+                            snapshots.First.nodes.Remove(s);
+
+                            //don't create a new selection
+                            trueSelection.node = null;
+
+                            return null;
+                        }
+
+                        return currentSelection;
+                    }
+                }
+            }
+
+            //there were no cirumstances in which to generate a selection
+            return null;
+        }
+
+
+        /*
         * EditorForm_MouseDown
         * 
-        * callback when the form is clicked on
+        * callback when the form is clicked on (down and then up)
         * 
         * @param object sender - the object that sent the event
         * @param EventArgs e - description of the event
@@ -153,75 +306,27 @@ namespace AIEToolProject
                 //get the mouse coordinates in global space
                 Point trueMousePos = new Point(mouseE.Location.X + scrollPos.X, mouseE.Location.Y + scrollPos.Y);
 
-                //iterate through all nodes, checking for collision with the mouse
-                foreach (BehaviourNode b in tree.nodes)
-                { 
-                    //test if the circle is intersecting the mouse position
-                    if (b.collider.IntersectingPoint(trueMousePos.X, trueMousePos.Y))
+                if (currentSelection == null)
+                {
+                    currentSelection = GenerateSelection(mouseE, trueMousePos);
+                }
+                else
+                {
+                    //set the mouse arguments
+                    currentSelection.mouseArgs = e;
+
+                    //check which mouse button is being pressed
+                    if (mouseE.Button == MouseButtons.Left)
+                    {
+                        currentSelection.LeftDown();
+
+                    }
+                    else if (mouseE.Button == MouseButtons.Right)
                     {
 
-                        selectedNode = b;
-
-                        if (mouseE.Button == MouseButtons.Left)
-                        {
-
-                            //circles representing the connector
-                            Circle parentCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[0], b.collider.radius * connectorRatio);
-                            Circle childCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[1], b.collider.radius * connectorRatio);
-
-                            //check for intersections with the connector circles before accepting the node
-                            if (childCircle.IntersectingPoint(trueMousePos.X, trueMousePos.Y) && b.type != BehaviourType.CONDITION && b.type != BehaviourType.ACTION)
-                            {
-                                selection = SelectionType.CHILD;
-                            }
-                            else if (parentCircle.IntersectingPoint(trueMousePos.X, trueMousePos.Y))
-                            {
-                                selection = SelectionType.PARENT;
-                            }
-                            else
-                            {
-                                selection = SelectionType.NODE;
-                            }
-                            
-                        }
-                        else if (mouseE.Button == MouseButtons.Right)
-                        {
-                            
-                            //circles representing the connector
-                            Circle parentCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[0], b.collider.radius * connectorRatio);
-                            Circle childCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[1], b.collider.radius * connectorRatio);
-
-                            //check for intersections with the connector circles before removing the node
-                            if (childCircle.IntersectingPoint(trueMousePos.X, trueMousePos.Y) && b.type != BehaviourType.CONDITION && b.type != BehaviourType.ACTION)
-                            {
-                                //iterate through all of the children, disconnecting them from this parent
-                                foreach (BehaviourNode c in b.children)
-                                {
-                                    c.parent = null;
-                                }
-
-                                b.children.Clear();
-                            }
-                            else if (parentCircle.IntersectingPoint(trueMousePos.X, trueMousePos.Y))
-                            {
-                                //check that the node has a parent
-                                if (b.parent != null)
-                                {
-                                    b.parent.children.Remove(b);
-                                }
-
-                                b.parent = null;
-                            }
-                            else
-                            {
-                                TreeHelper.RemoveFromTree(tree.nodes, selectedNode);
-                            }
-                        }
-
-                        break;
+                        currentSelection.RightDown();
                     }
                 }
-
             }
 
         }
@@ -230,7 +335,7 @@ namespace AIEToolProject
         /*
         * EditorForm_Click 
         * 
-        * callback when the form is clicked
+        * callback when the form is clicked (down)
         * 
         * @param object sender - the object that sent the event
         * @param EventArgs e - description of the event
@@ -249,113 +354,53 @@ namespace AIEToolProject
             if (mouseE != null)
             {
 
-                //is the user dragging an existing node
-                if (selectedNode == null)
+                if (currentSelection == null)
                 {
+
                     if (mouseE.Button == MouseButtons.Left)
                     {
                         //nothing was selected, the user is trying to create a node
-                        if (selection == SelectionType.NULL)
-                        {
-                            //create a new node
-                            BehaviourNode node = new BehaviourNode();
+                        BehaviourNode node = new BehaviourNode();
 
-                            //set the position
-                            node.collider.x = mouseE.X + scrollPos.X;
-                            node.collider.y = mouseE.Y + scrollPos.Y;
+                        //set the position
+                        node.collider.x = mouseE.X + scrollPos.X;
+                        node.collider.y = mouseE.Y + scrollPos.Y;
 
-                            //set the circle radius
-                            node.collider.radius = scalar;
+                        //set the circle radius
+                        node.collider.radius = scalar;
 
-                            node.type = (MdiParent as MainForm).selectedType;
+                        node.type = (MdiParent as MainForm).selectedType;
 
-                            node.connectorOffsets = new float[] { -node.collider.radius * 0.7f, node.collider.radius * 0.7f};
+                        node.connectorOffsets = new float[] { -node.collider.radius * 0.7f, node.collider.radius * 0.7f };
 
-                            tree.nodes.Add(node);
-                        }
+                        snapshots.First.nodes.Add(node);
+
                     }
+
                 }
                 else
                 {
-                    if (selection == SelectionType.CHILD)
-                    { 
-                        //check for collision with all parent connectors
-                        foreach (BehaviourNode b in tree.nodes)
-                        {
-                            //don't check for self collisions
-                            if (b == selectedNode)
-                            {
-                                continue;
-                            }
-                    
-                            //get the circle of the parent connector
-                            Circle parentCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[0], b.collider.radius * connectorRatio);
-                    
-                            //coordinates of the mouse in global space
-                            float mx = mouseE.X + scrollPos.X;
-                            float my = mouseE.Y + scrollPos.Y;
-                    
-                            //if the parent connector is intersecting
-                            if (parentCircle.IntersectingPoint(mx, my))
-                            {
-                                if (!TreeHelper.IsCyclic(selectedNode, b))
-                                {
-                                    //form a connection
-                                    selectedNode.children.Add(b);
-                                    b.parent = selectedNode;
-                                }
-                    
-                                break;
-                            }
-                        }
-                    
-                    }
-                    else if (selection == SelectionType.PARENT)
+                    //set the mouse arguments
+                    currentSelection.mouseArgs = e;
+
+                    if (mouseE.Button == MouseButtons.Left)
                     {
-                        //check for collision with all child connectors
-                        foreach (BehaviourNode b in tree.nodes)
-                        {
-                            //don't check for self collisions
-                            if (b == selectedNode)
-                            {
-                                continue;
-                            }
-                    
-                            //get the circle of the child connector
-                            Circle childCircle = new Circle(b.collider.x, b.collider.y + b.connectorOffsets[1], b.collider.radius * connectorRatio);
-                    
-                            //coordinates of the mouse in global space
-                            float mx = mouseE.X + scrollPos.X;
-                            float my = mouseE.Y + scrollPos.Y;
-                    
-                            //if the child connector is intersecting
-                            if (childCircle.IntersectingPoint(mx, my))
-                            {
-                                if (!TreeHelper.IsCyclic(selectedNode, b))
-                                {
-                                    //form a connection
-                                    selectedNode.parent = b;
-                                    b.children.Add(selectedNode);
-                                }
-                    
-                                break;
-                            }
-                        }
+                        currentSelection.LeftUp();
+
                     }
-                    
-                    //deselect the node
-                    selectedNode = null;
+                    else if (mouseE.Button == MouseButtons.Right)
+                    {
+                        currentSelection.RightUp();
+                    }
 
+                    //reset the selection
+                    currentSelection = null;
+
+                    this.Refresh();
+
+                    //recalculate area after movement
+                    SetScrollableArea();
                 }
-
-                //reset the selection
-                selection = SelectionType.NULL;
-
-                this.Refresh();
-
-                //recalculate area after movement
-                SetScrollableArea();
-
             }
           
         }
@@ -383,35 +428,16 @@ namespace AIEToolProject
             {
                 Point trueMousePos = new Point(mouseE.Location.X + scrollPos.X, mouseE.Location.Y + scrollPos.Y);
 
-                //respond to the mouse movement as something is selected
-                if (selectedNode != null)
+                if (currentSelection != null)
                 {
-                    //a node is being moved
-                    if (selection == SelectionType.NODE)
-                    {
-                        selectedNode.collider.x = trueMousePos.X;
-                        selectedNode.collider.y = trueMousePos.Y;
-                    }
-                    //a connection is being potentially formed
-                    else if (selection == SelectionType.CHILD)
-                    {
-                        tx1 = selectedNode.collider.x - scrollPos.X;
-                        ty1 = selectedNode.collider.y + selectedNode.connectorOffsets[1] - scrollPos.Y;
+                    //set the mouse arguments
+                    currentSelection.mouseArgs = e;
 
-                        tx2 = trueMousePos.X - scrollPos.X;
-                        ty2 = trueMousePos.Y - scrollPos.Y;
-                    }
-                    else if (selection == SelectionType.PARENT)
-                    {
-                        tx1 = selectedNode.collider.x - scrollPos.X;
-                        ty1 = selectedNode.collider.y + selectedNode.connectorOffsets[0] - scrollPos.Y;
-
-                        tx2 = trueMousePos.X - scrollPos.X;
-                        ty2 = trueMousePos.Y - scrollPos.Y;
-                    }
-
-                    this.Refresh();
+                    currentSelection.Move();
                 }
+
+                this.Refresh();
+
             }
         }
 
@@ -508,7 +534,7 @@ namespace AIEToolProject
             Graphics g = e.Graphics;
 
             //iterate through all nodes in the nodes container
-            foreach (BehaviourNode b in tree.nodes)
+            foreach (BehaviourNode b in snapshots.First.nodes)
             {
 
                 //deduct what type of node it is
@@ -643,7 +669,6 @@ namespace AIEToolProject
         }
 
 
-
         /*
         * drawConnections
         * 
@@ -651,7 +676,6 @@ namespace AIEToolProject
         * 
         * @param PaintEventArgs e - the arguments provided to paint the custom textures
         * @returns void
-        * 
         */
         public void drawConnections(PaintEventArgs e)
         {
@@ -665,10 +689,10 @@ namespace AIEToolProject
             Pen blackPen = new Pen(Color.Black, 2.0f);
 
             //iterate through all nodes in the node list
-            foreach (BehaviourNode b in tree.nodes)
+            foreach (BehaviourNode b in snapshots.First.nodes)
             {
                 //position of the child connector
-                float cx = b.collider.x - validScrollPos.X;sx
+                float cx = b.collider.x - validScrollPos.X;
                 float cy = b.collider.y + b.connectorOffsets[1] - validScrollPos.Y;
 
                 //get the size of the children array
@@ -690,7 +714,7 @@ namespace AIEToolProject
             }
 
             //is a connection being currently formed?
-            if (selection == SelectionType.CHILD || selection == SelectionType.PARENT)
+            if (currentSelection != null && currentSelection.GetType() == (new ConnectionSelection()).GetType())
             {
                 //draw the line
                 g.DrawLine(blackPen, tx1, ty1, tx2, ty2);
@@ -698,8 +722,6 @@ namespace AIEToolProject
 
             blackPen.Dispose();
         }
-
-
 
 
         /*
@@ -720,7 +742,7 @@ namespace AIEToolProject
             Graphics g = e.Graphics;
 
             //iterate through all nodes in the node list
-            foreach (BehaviourNode b in tree.nodes)
+            foreach (BehaviourNode b in snapshots.First.nodes)
             {
                 //create the pen and brush to draw the outlined circle with
                 Pen blackPen = new Pen(Color.Black, 2.0f);
@@ -778,6 +800,7 @@ namespace AIEToolProject
 
             SetScrollableArea();
 
+            //force the form to re-draw itself
             Invalidate();
             this.Refresh();
         }

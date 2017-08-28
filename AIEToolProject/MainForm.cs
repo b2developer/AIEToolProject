@@ -172,7 +172,9 @@ namespace AIEToolProject
                 StreamReader streamReader = new StreamReader(openFileDialog.FileName);
 
                 //write the object to the stream
-                newChild.tree = serialiser.Deserialize(streamReader) as BehaviourTree;
+                newChild.snapshots.First = serialiser.Deserialize(streamReader) as BehaviourTree;
+
+                newChild.snapshots.First.Relink();
 
                 streamReader.Close();
             }
@@ -201,7 +203,7 @@ namespace AIEToolProject
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 EditorForm activeChild = (this.ActiveMdiChild as EditorForm);
-                activeChild.tree.Serialise(saveFileDialog.FileName);
+                activeChild.snapshots.First.Serialise(saveFileDialog.FileName);
 
                 //string splicing to get the desired format
                 string fullPath = saveFileDialog.FileName;
