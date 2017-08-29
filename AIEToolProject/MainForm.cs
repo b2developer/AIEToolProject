@@ -16,9 +16,6 @@ namespace AIEToolProject
     public partial class MainForm : Form
     {
 
-        //enum variable to store the type of behaviour
-        public BehaviourType selectedType;
-
         public MainForm()
         {
             InitializeComponent();
@@ -60,7 +57,8 @@ namespace AIEToolProject
         */
         private void actionButton_Click(object sender, EventArgs e)
         {
-            selectedType = BehaviourType.ACTION;
+            EditorForm activeChild = (this.ActiveMdiChild as EditorForm);
+            activeChild.spawnType = NodeType.ACTION;
         }
 
 
@@ -75,7 +73,8 @@ namespace AIEToolProject
         */
         private void conditionButton_Click(object sender, EventArgs e)
         {
-            selectedType = BehaviourType.CONDITION;
+            EditorForm activeChild = (this.ActiveMdiChild as EditorForm);
+            activeChild.spawnType = NodeType.CONDITION;
         }
 
 
@@ -90,7 +89,8 @@ namespace AIEToolProject
         */
         private void selectorButton_Click(object sender, EventArgs e)
         {
-            selectedType = BehaviourType.SELECTOR;
+            EditorForm activeChild = (this.ActiveMdiChild as EditorForm);
+            activeChild.spawnType = NodeType.SELECTOR;
         }
 
         /*
@@ -104,7 +104,8 @@ namespace AIEToolProject
         */
         private void sequenceButton_Click(object sender, EventArgs e)
         {
-            selectedType = BehaviourType.SEQUENCE;
+            EditorForm activeChild = (this.ActiveMdiChild as EditorForm);
+            activeChild.spawnType = NodeType.SEQUENCE;
         }
 
 
@@ -119,7 +120,8 @@ namespace AIEToolProject
         */
         private void decoratorButton_Click(object sender, EventArgs e)
         {
-            selectedType = BehaviourType.DECORATOR;
+            EditorForm activeChild = (this.ActiveMdiChild as EditorForm);
+            activeChild.spawnType = NodeType.DECORATOR;
         }
 
 
@@ -165,6 +167,7 @@ namespace AIEToolProject
                 //send the MDI window to the front of the screen
                 newChild.Select();
 
+                /*
                 //create a de-serialiser object for the tree
                 XmlSerializer serialiser = new XmlSerializer(typeof(BehaviourTree));
 
@@ -175,8 +178,9 @@ namespace AIEToolProject
                 newChild.snapshots.First = serialiser.Deserialize(streamReader) as BehaviourTree;
 
                 newChild.snapshots.First.Relink();
-
+                
                 streamReader.Close();
+                */
             }
         }
 
@@ -203,7 +207,6 @@ namespace AIEToolProject
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 EditorForm activeChild = (this.ActiveMdiChild as EditorForm);
-                activeChild.snapshots.First.Serialise(saveFileDialog.FileName);
 
                 //string splicing to get the desired format
                 string fullPath = saveFileDialog.FileName;
@@ -214,6 +217,16 @@ namespace AIEToolProject
                 //only include the name of the file, not the extension
                 activeChild.Text = name;
             }
+        }
+
+        private void undoButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void loopTimer_Tick(object sender, EventArgs e)
+        {
+
         }
     }
 }

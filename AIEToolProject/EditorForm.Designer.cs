@@ -46,6 +46,7 @@
             this.Click += new System.EventHandler(this.EditorForm_Click);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.EditorForm_MouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.EditorForm_MouseMove);
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.EditorForm_MouseUp);
             this.Resize += new System.EventHandler(this.EditorForm_Resize);
             this.ResumeLayout(false);
 

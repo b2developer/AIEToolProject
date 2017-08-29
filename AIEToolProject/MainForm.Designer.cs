@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.MenuStrip = new System.Windows.Forms.MenuStrip();
             this.fileButton = new System.Windows.Forms.ToolStripMenuItem();
@@ -47,6 +48,7 @@
             this.selectorButton = new System.Windows.Forms.Button();
             this.conditionButton = new System.Windows.Forms.Button();
             this.actionButton = new System.Windows.Forms.Button();
+            this.loopTimer = new System.Windows.Forms.Timer(this.components);
             this.MenuStrip.SuspendLayout();
             this.toolPanel.SuspendLayout();
             this.SuspendLayout();
@@ -80,28 +82,28 @@
             // newButton
             // 
             this.newButton.Name = "newButton";
-            this.newButton.Size = new System.Drawing.Size(152, 22);
+            this.newButton.Size = new System.Drawing.Size(107, 22);
             this.newButton.Text = "New";
             this.newButton.Click += new System.EventHandler(this.newButton_Click);
             // 
             // openButton
             // 
             this.openButton.Name = "openButton";
-            this.openButton.Size = new System.Drawing.Size(152, 22);
+            this.openButton.Size = new System.Drawing.Size(107, 22);
             this.openButton.Text = "Open";
             this.openButton.Click += new System.EventHandler(this.openButton_Click);
             // 
             // saveButton
             // 
             this.saveButton.Name = "saveButton";
-            this.saveButton.Size = new System.Drawing.Size(152, 22);
+            this.saveButton.Size = new System.Drawing.Size(107, 22);
             this.saveButton.Text = "Save";
             this.saveButton.Click += new System.EventHandler(this.saveButton_Click);
             // 
             // exportButton
             // 
             this.exportButton.Name = "exportButton";
-            this.exportButton.Size = new System.Drawing.Size(152, 22);
+            this.exportButton.Size = new System.Drawing.Size(107, 22);
             this.exportButton.Text = "Export";
             // 
             // editButton
@@ -117,19 +119,20 @@
             // undoButton
             // 
             this.undoButton.Name = "undoButton";
-            this.undoButton.Size = new System.Drawing.Size(145, 22);
+            this.undoButton.Size = new System.Drawing.Size(152, 22);
             this.undoButton.Text = "Undo (Ctrl-Z)";
+            this.undoButton.Click += new System.EventHandler(this.undoButton_Click);
             // 
             // copyButton
             // 
             this.copyButton.Name = "copyButton";
-            this.copyButton.Size = new System.Drawing.Size(145, 22);
+            this.copyButton.Size = new System.Drawing.Size(152, 22);
             this.copyButton.Text = "Copy (Ctrl-C)";
             // 
             // pasteButton
             // 
             this.pasteButton.Name = "pasteButton";
-            this.pasteButton.Size = new System.Drawing.Size(145, 22);
+            this.pasteButton.Size = new System.Drawing.Size(152, 22);
             this.pasteButton.Text = "Paste (Ctrl-V)";
             // 
             // settingsButton
@@ -210,6 +213,12 @@
             this.actionButton.UseVisualStyleBackColor = false;
             this.actionButton.Click += new System.EventHandler(this.actionButton_Click);
             // 
+            // loopTimer
+            // 
+            this.loopTimer.Enabled = true;
+            this.loopTimer.Interval = 5;
+            this.loopTimer.Tick += new System.EventHandler(this.loopTimer_Tick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -251,6 +260,7 @@
         private System.Windows.Forms.Button decoratorButton;
         private System.Windows.Forms.Button sequenceButton;
         private System.Windows.Forms.Button selectorButton;
+        private System.Windows.Forms.Timer loopTimer;
     }
 }
 
