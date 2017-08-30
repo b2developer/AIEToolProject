@@ -30,10 +30,10 @@ namespace AIEToolProject.Source
 
         /*
         * public NodeSpawner()
-        * default constructor
+        * constructor, defines the nodes list
         */
         public NodeSpawner() { }
-
+  
 
         /*
         * MousePressedCallback
@@ -111,7 +111,7 @@ namespace AIEToolProject.Source
 
                 //set the characteristics of the renderer
                 rendererComp.node = nodeComp;
-                rendererComp.type = form.spawnType;
+                rendererComp.node.type = form.spawnType;
 
                 EventListener listenerComp = new EventListener();
 

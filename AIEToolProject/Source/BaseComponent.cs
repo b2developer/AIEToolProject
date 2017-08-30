@@ -1,8 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace AIEToolProject.Source
 {
@@ -15,7 +22,7 @@ namespace AIEToolProject.Source
     */
     public class BaseComponent
     {
-
+        [XmlIgnore]
         //reference to the game object holding the component
         public BaseObject container = null;
 

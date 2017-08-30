@@ -142,45 +142,18 @@ namespace AIEToolProject
         */
         private void openButton_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
+            //create a new EditorForm
+            EditorForm newChild = new EditorForm();
 
-            //only allow XML files as input
-            openFileDialog.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*";
-            openFileDialog.FilterIndex = 2;
-            openFileDialog.RestoreDirectory = true;
-
-            //check that the open dialog opened properly
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            //de-serialise a file 
+            if (TreeHelper.LoadState(newChild))
             {
-                //create a new EditorForm
-                EditorForm newChild = new EditorForm();
 
-                //only include the name of the file, not the extension
-                newChild.Text = openFileDialog.SafeFileName.Split('.')[0];
-
-                //set the parent
                 newChild.MdiParent = this;
 
-                //display the newly created child
+                //open the window
                 newChild.Show();
-
-                //send the MDI window to the front of the screen
                 newChild.Select();
-
-                /*
-                //create a de-serialiser object for the tree
-                XmlSerializer serialiser = new XmlSerializer(typeof(BehaviourTree));
-
-                //create a stream reader object for the xml reader
-                StreamReader streamReader = new StreamReader(openFileDialog.FileName);
-
-                //write the object to the stream
-                newChild.snapshots.First = serialiser.Deserialize(streamReader) as BehaviourTree;
-
-                newChild.snapshots.First.Relink();
-                
-                streamReader.Close();
-                */
             }
         }
 
@@ -188,7 +161,7 @@ namespace AIEToolProject
         /*
         * saveButton_Click 
         * 
-        * callback when the save button is clicked, opens an additional file dialog
+        * callback when the save button is clicked, can open an additional file dialog
         * 
         * @param object sender - the object that sent the event
         * @param EventArgs e - description of the event
@@ -196,26 +169,36 @@ namespace AIEToolProject
         */
         private void saveButton_Click(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-
-            //only save as an XML
-            saveFileDialog.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*";
-            saveFileDialog.FilterIndex = 2;
-            saveFileDialog.RestoreDirectory = true;
-
-            //check that the save dialog opened properly
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            //check that the program has a window open
+            if (ActiveMdiChild != null)
             {
+                //get the active window
                 EditorForm activeChild = (this.ActiveMdiChild as EditorForm);
 
-                //string splicing to get the desired format
-                string fullPath = saveFileDialog.FileName;
-                string[] splitPath = fullPath.Split('\\');
-                string pathName = splitPath[splitPath.Length - 1];
-                string name = pathName.Split('.')[0];
+                //serialise to a file
+                TreeHelper.SaveState(activeChild, false);
+            }
+        }
 
-                //only include the name of the file, not the extension
-                activeChild.Text = name;
+        /*
+        * save_asButton_Click 
+        * 
+        * callback when the save_as button is clicked, opens an additional file dialog
+        * 
+        * @param object sender - the object that sent the event
+        * @param EventArgs e - description of the event
+        * @returns void
+        */
+        private void save_asButton_Click(object sender, EventArgs e)
+        {
+            //check that the program has a window open
+            if (ActiveMdiChild != null)
+            {
+                //get the active window
+                EditorForm activeChild = (this.ActiveMdiChild as EditorForm);
+
+                //serialise to a file
+                TreeHelper.SaveState(activeChild, true);
             }
         }
 
@@ -228,5 +211,11 @@ namespace AIEToolProject
         {
 
         }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }

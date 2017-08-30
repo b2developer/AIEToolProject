@@ -14,6 +14,9 @@ namespace AIEToolProject
 
     public partial class EditorForm : Form
     {
+        //string that the file loaded from
+        public string loadedPath = "";
+
         //container of objects to update
         public List<BaseObject> objects;
 
@@ -383,6 +386,32 @@ namespace AIEToolProject
 
             //get the size of the objects list
             int objSize = objects.Count;
+
+            //iterate through all of the objects, pre-rendering each
+            for (int i = objSize - 1; i >= 0; i--)
+            {
+                //store in a temp value for readability and performance
+                BaseObject obj = objects[i];
+
+                //get the size of the object's component list
+                int compSize = obj.components.Count;
+
+                //iterate through all components in the object, checking if each is a node renderer
+                for (int j = 0; j < obj.components.Count; j++)
+                {
+                    //store the base value
+                    BaseComponent comp = obj.components[j];
+
+                    //check if the component is an event listener
+                    if (comp is NodeRenderer)
+                    {
+                        //cast the base object to it's true type
+                        NodeRenderer renderer = comp as NodeRenderer;
+
+                        renderer.PreRender(this, g);
+                    }
+                }
+            }
 
             //iterate through all of the objects, rendering each
             for (int i = objSize -1 ; i >= 0; i--)

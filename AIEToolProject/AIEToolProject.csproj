@@ -82,6 +82,7 @@
     <Compile Include="Source\Node.cs" />
     <Compile Include="Source\NodeRenderer.cs" />
     <Compile Include="Source\NodeSpawner.cs" />
+    <Compile Include="Source\Tree.cs" />
     <Compile Include="Source\TreeHelper.cs" />
     <EmbeddedResource Include="EditorForm.resx">
       <DependentUpon>EditorForm.cs</DependentUpon>

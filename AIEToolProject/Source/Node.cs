@@ -7,6 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace AIEToolProject.Source
 {
@@ -42,6 +45,7 @@ namespace AIEToolProject.Source
     public class Node : BaseComponent
     {
 
+        [XmlIgnore]
         //reference to the form that this resides in
         public EditorForm form = null;
 
@@ -52,9 +56,16 @@ namespace AIEToolProject.Source
         public Circle upperConn = null;
         public Circle lowerConn = null;
 
+        //used by file I/O / copying to maintain the tree structure
+        public int index = 0;
+
         //the structure of the node in the tree
-        public Node parent;
+        [XmlIgnore]
+        public Node parent = null;
         public List<Node> children;
+
+        //the type of node
+        public NodeType type = NodeType.ACTION;
 
         //event handling mode of the type
         public NodeFocusType focus = NodeFocusType.NONE;
@@ -69,11 +80,11 @@ namespace AIEToolProject.Source
 
         /*
         * public Node() 
-        * default constructor
+        * constructor, defines the new list
         */
         public Node()
         {
-
+            children = new List<Node>();
         }
 
 
@@ -127,6 +138,15 @@ namespace AIEToolProject.Source
 
                         lineEnabled = true;
                     }
+                    else if (eventListener.mouseEventArgs.Button == MouseButtons.Right)
+                    {
+                        //disconnect the parent
+                        if (parent != null)
+                        {
+                            parent.children.Remove(this);
+                            parent = null;
+                        }
+                    }
                 }
                 //is the mouse clicking the lower connection circle
                 else if (trueLowerConn != null && trueLowerConn.IntersectingPoint(trueMousePosition.X, trueMousePosition.Y))
@@ -143,6 +163,16 @@ namespace AIEToolProject.Source
 
                         lineEnabled = true;
                     }
+                    else if (eventListener.mouseEventArgs.Button == MouseButtons.Right)
+                    {
+                        //disconnect all of the children
+                        foreach (Node child in children)
+                        {
+                            child.parent = null;
+                        }
+
+                        children.Clear();
+                    }
                 }
                 //is the mouse clicking the base
                 else if (collider.IntersectingPoint(trueMousePosition.X, trueMousePosition.Y))
@@ -154,7 +184,21 @@ namespace AIEToolProject.Source
                     }
                     else if (eventListener.mouseEventArgs.Button == MouseButtons.Right)
                     {
+                        //remove the node from the tree and form
+
                         form.objects.Remove(this.container);
+
+                        //disconnect the parent
+                        if (parent != null)
+                        {
+                            parent.children.Remove(this);
+                        }
+
+                        //disconnect all of the children
+                        foreach (Node child in children)
+                        {
+                            child.parent = null;
+                        }
                     }
                 }
 
@@ -226,30 +270,38 @@ namespace AIEToolProject.Source
                         //store in temp value for readability and performance
                         Node other = otherNodes[i];
 
-                        Circle trueUpperConn = new Circle(collider.x + upperConn.x, collider.y + upperConn.y, upperConn.radius);
+                        Circle trueUpperConn = new Circle(other.collider.x + other.upperConn.x, other.collider.y + other.upperConn.y, other.upperConn.radius);
                         Circle trueLowerConn = null;
 
                         //check that the node has a lower connection
-                        if (lowerConn != null)
+                        if (other.lowerConn != null)
                         {
-                            trueLowerConn = new Circle(collider.x + lowerConn.x, collider.y + lowerConn.y, lowerConn.radius);
+                            trueLowerConn = new Circle(other.collider.x + other.lowerConn.x, other.collider.y + other.lowerConn.y, other.lowerConn.radius);
                         }
 
                         //is the mouse clicking the upper connection circle
                         if (trueUpperConn.IntersectingPoint(lx2, ly2))
                         {
-                            if (focus == NodeFocusType.LOWER)
+                            //test that the connection wont break the tree structure
+                            if (focus == NodeFocusType.LOWER && !TreeHelper.SharedRoot(this, other))
                             {
-                                //form connection
+                                //connect this node as a parent of the other
+                                other.parent = this;
+                                children.Add(other);
+
                                 break;
                             }
                         }
                         //is the mouse clicking the lower connection circle
                         else if (trueLowerConn != null && trueLowerConn.IntersectingPoint(lx2, ly2))
                         {
-                            if (focus == NodeFocusType.UPPER)
+                            //test that the connection wont break the tree structure
+                            if (focus == NodeFocusType.UPPER && !TreeHelper.SharedRoot(this, other))
                             {
-                                //form connection
+                                //connect this node as a child of other
+                                this.parent = other;
+                                other.children.Add(this);
+
                                 break;
                             }
                         }

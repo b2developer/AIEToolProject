@@ -25,9 +25,6 @@ namespace AIEToolProject.Source
         //the node that is being rendered
         public Node node = null;
 
-        //the type of node
-        public NodeType type = NodeType.ACTION;
-
         /*
         * public NodeRenderer() 
         * default constructor
@@ -54,7 +51,7 @@ namespace AIEToolProject.Source
             //deduct what type of node this
             //-------------------------------------------------------------------------------------------------------------------------
             //-------------------------------------------------------------------------------------------------------------------------
-            switch (type)
+            switch (node.type)
             {
                 case NodeType.ACTION:
 
@@ -219,6 +216,30 @@ namespace AIEToolProject.Source
 
 
         }
+
+        /*
+        * PreRender() 
+        * draws the connections going away from the current node to the current form
+        * 
+        * @param EditorForm form - the form that called the render
+        * @param Graphics g - the grpahics object that will render the node
+        */
+        public void PreRender(EditorForm form, Graphics g)
+        {
+            //create the pen to draw with
+            Pen blackPen = new Pen(Color.Black, 2.0f);
+
+            //iterate through all nodes, drawing each
+            foreach (Node child in node.children)
+            {
+                g.DrawLine(blackPen, new Point((int)(node.collider.x + node.lowerConn.x), (int)(node.collider.y + node.lowerConn.y)), 
+                                     new Point((int)(child.collider.x + child.upperConn.x), (int)(child.collider.y + child.upperConn.y)));
+            }
+
+            blackPen.Dispose();
+
+        }
+       
 
 
     }
