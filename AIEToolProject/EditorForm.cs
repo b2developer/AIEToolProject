@@ -24,12 +24,15 @@ namespace AIEToolProject
         //recieve events if the list is empty
         public List<EventListener> exclusives;
 
-        //empty labels that define the scrollable area
-        public Label topLeft = null;
-        public Label bottomRight = null;
+        //empty buttons that define the scrollable area
+        public Button topLeft = null;
+        public Button bottomRight = null;
 
         //remembers the last valid scroll position
         public Point safeScrollPosition = new Point(0, 0);
+
+        //amount of padding on the scrollable area
+        public int windowPadding = 300;
 
         //type of node to spawn when requested
         public NodeType spawnType = NodeType.ACTION;
@@ -44,15 +47,6 @@ namespace AIEToolProject
 
             objects = new List<BaseObject>();
             exclusives = new List<EventListener>();
-
-            topLeft = new Label();
-            topLeft.Size = new Size(0, 0);
-
-            bottomRight = new Label();
-            bottomRight.Size = new Size(0, 0);
-
-            this.Controls.Add(topLeft);
-            this.Controls.Add(bottomRight);
 
             BaseObject obj = new BaseObject();
 
@@ -82,59 +76,132 @@ namespace AIEToolProject
         * iterates through every node, setting a rectangle
         * (topLeft and bottomRight) that surrounds all nodes
         *
+        * @param int padding - the padding of the rectangle that surrounds all nodes
         * @returns void
         */
-        public void SetScrollableArea()
+        public void SetScrollableArea(int padding)
         {
 
             Point scrollPos = new Point(this.HorizontalScroll.Value, this.VerticalScroll.Value);
 
             //track the best position for the rectangle as the list of nodes is iterated through
-            Point topLeftBest = new Point();
-            Point bottomRightBest = new Point();
+            Point bottomRightBest = new Point(0, 0);
 
-            /*
-            //default setting
-            if (snapshots.First.nodes.Count > 0)
+            //define a list of nodes to check
+            List<Node> nodes = new List<Node>();
+
+            //get the size of the objects list
+            int objSize = objects.Count;
+
+            //iterate through all of the objects
+            for (int i = 0; i < objSize; i++)
             {
-                topLeftBest = new Point((int)snapshots.First.nodes[0].collider.x, (int)snapshots.First.nodes[0].collider.y);
-                bottomRightBest = new Point((int)snapshots.First.nodes[0].collider.x, (int)snapshots.First.nodes[0].collider.y);
+                //store in a temp value for performance and readability
+                BaseObject obj = objects[i];
+
+                //get the size of the object's components list
+                int compSize = obj.components.Count;
+
+                //iterate through all of the components in the object
+                for (int j = 0; j < compSize; j++)
+                {
+                    //store in a temp valu efor performance and readability
+                    BaseComponent comp = obj.components[j];
+
+                    //check that
+                    if (comp is Node)
+                    {
+                        nodes.Add(comp as Node);
+                    }
+                }
+            }
+
+            //default setting
+            if (nodes.Count > 0)
+            {
+                bottomRightBest = new Point((int)nodes[0].collider.x, (int)nodes[0].collider.y);
             }
 
             //iterate through all nodes in the nodes container
-            foreach (BehaviourNode b in snapshots.First.nodes)
+            foreach (Node n in nodes)
             {
                 //move the left limit if it too close
-                if (topLeftBest.X > (int)b.collider.x)
+                if (bottomRightBest.X < (int)n.collider.x)
                 {
-                    topLeftBest = new Point((int)b.collider.x, topLeftBest.Y);
+                    bottomRightBest = new Point((int)n.collider.x, bottomRightBest.Y);
                 }
 
                 //move the right limit if it too close
-                if (topLeftBest.Y > (int)b.collider.y)
+                if (bottomRightBest.Y < (int)n.collider.y)
                 {
-                    topLeftBest = new Point(topLeftBest.X, (int)b.collider.y);
-                }
-
-                //move the left limit if it too close
-                if (bottomRightBest.X < (int)b.collider.x)
-                {
-                    bottomRightBest = new Point((int)b.collider.x, bottomRightBest.Y);
-                }
-
-                //move the right limit if it too close
-                if (bottomRightBest.Y < (int)b.collider.y)
-                {
-                    bottomRightBest = new Point(bottomRightBest.X, (int)b.collider.y);
+                    bottomRightBest = new Point(bottomRightBest.X, (int)n.collider.y);
                 }
             }
-            
 
-            //apply the padding
-            topLeft.Location = new Point(topLeftBest.X - scrollPos.X, topLeftBest.Y - scrollPos.Y);
-            bottomRight.Location = new Point(bottomRightBest.X - scrollPos.X, bottomRightBest.Y - scrollPos.Y);
-            */
+            bottomRightBest.X += padding;
+            bottomRightBest.Y += padding;
 
+            //set the scrollbars based on the scrollable area
+
+            //test that the scrollbar is required
+            if (this.Width > bottomRightBest.X)
+            {
+                this.hScrollBar.Visible = false;
+            }
+            else
+            {
+                this.hScrollBar.Visible = true;
+                this.hScrollBar.Minimum = 0;
+                this.hScrollBar.Maximum = bottomRightBest.X;
+                this.hScrollBar.LargeChange = this.Width;
+            }
+
+            //test that the scrollbar is required
+            if (this.Height > bottomRightBest.Y)
+            {
+                this.vScrollBar.Visible = false;
+            }
+            else
+            {
+                this.vScrollBar.Visible = true;
+                this.vScrollBar.Minimum = 0;
+                this.vScrollBar.Maximum = bottomRightBest.Y;
+                this.vScrollBar.LargeChange = this.Height;
+            }
+
+            //maximum values that the scroll bars can have
+            int maxX = (int)(bottomRightBest.X - this.Width);
+            int maxY = (int)(bottomRightBest.Y - this.Height);
+
+            //clamp the scrolling values
+            if (this.hScrollBar.Value > maxX)
+            {
+                //minimum value is 0
+                if (maxX < 0)
+                {
+                    this.hScrollBar.Value = 0;
+                }
+                else
+                {
+                    this.hScrollBar.Value = maxX;
+                }
+            }
+
+            if (this.vScrollBar.Value > maxY)
+            {
+
+                //minimum value is 0
+                if (maxY < 0)
+                {
+                    this.vScrollBar.Value = 0;
+                }
+                else
+                {
+                    this.vScrollBar.Value = maxY;
+                }
+            }
+
+            safeScrollPosition = new Point(this.hScrollBar.Value, this.vScrollBar.Value);
         }
 
 
@@ -247,7 +314,11 @@ namespace AIEToolProject
                 }
             }
 
-            Refresh();
+            SetScrollableArea(windowPadding);
+
+            //force the form to re-draw itself
+            Invalidate();
+            this.Refresh();
         }
 
 
@@ -378,8 +449,7 @@ namespace AIEToolProject
             //called the hidden function
             base.OnPaint(e);
 
-            //get the amount of scroll that is offsetting the window
-            this.AutoScrollPosition = safeScrollPosition;
+            SetScrollableArea(windowPadding);
 
             //get the graphics object to paint with
             Graphics g = e.Graphics;
@@ -451,7 +521,7 @@ namespace AIEToolProject
 
         private void EditorForm_Resize(object sender, EventArgs e)
         {
-            SetScrollableArea();
+            SetScrollableArea(windowPadding);
 
             //force the form to re-draw itself
             Invalidate();          
@@ -459,18 +529,45 @@ namespace AIEToolProject
         }
 
 
-
-        private void EditorForm_Scroll(object sender, ScrollEventArgs e)
+        /*
+        * hScrollBar_Scroll 
+        * 
+        * callback when the horizontal scroll bar is used
+        * 
+        * @param object sender - the object that sent the event
+        * @param EventArgs e - description of the event
+        * @returns void
+        */
+        private void hScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
-            safeScrollPosition = new Point(this.HorizontalScroll.Value, this.VerticalScroll.Value);
+            safeScrollPosition = new Point(this.hScrollBar.Value, safeScrollPosition.Y);
 
-            SetScrollableArea();
+            SetScrollableArea(windowPadding);
 
             //force the form to re-draw itself
             Invalidate();
             this.Refresh();
         }
 
-    
+
+        /*
+        * vScrollBar_Scroll 
+        * 
+        * callback when the vertical scroll bar is used
+        * 
+        * @param object sender - the object that sent the event
+        * @param EventArgs e - description of the event
+        * @returns void
+        */
+        private void vScrollBar_Scroll(object sender, ScrollEventArgs e)
+        {
+            safeScrollPosition = new Point(safeScrollPosition.X, this.vScrollBar.Value);
+
+            SetScrollableArea(windowPadding);
+
+            //force the form to re-draw itself
+            Invalidate();
+            this.Refresh();
+        }
     }
 }

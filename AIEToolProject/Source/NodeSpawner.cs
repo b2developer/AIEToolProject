@@ -22,7 +22,7 @@ namespace AIEToolProject.Source
     class NodeSpawner : BaseComponent
     {
         //radii of the spawned node's colliders
-        public float nodeRadius = 45.0f;
+        public float nodeRadius = 35.0f;
         public float connRadius = 15.0f;
 
         //reference to the form that is using it
@@ -100,11 +100,11 @@ namespace AIEToolProject.Source
                 nodeComp.collider = new Circle(trueMousePosition.X, trueMousePosition.Y, nodeRadius);
                 nodeComp.form = form;
 
-                nodeComp.upperConn = new Circle(0, -35, connRadius);
+                nodeComp.upperConn = new Circle(0, -(nodeRadius - connRadius), connRadius);
 
                 if (form.spawnType != NodeType.ACTION && form.spawnType != NodeType.CONDITION)
                 {
-                    nodeComp.lowerConn = new Circle(0, 35, connRadius);
+                    nodeComp.lowerConn = new Circle(0, nodeRadius - connRadius, connRadius);
                 }
 
                 NodeRenderer rendererComp = new NodeRenderer();

@@ -226,14 +226,17 @@ namespace AIEToolProject.Source
         */
         public void PreRender(EditorForm form, Graphics g)
         {
+            //get the scroll position
+            Point scrollPosition = form.safeScrollPosition;
+
             //create the pen to draw with
             Pen blackPen = new Pen(Color.Black, 2.0f);
 
             //iterate through all nodes, drawing each
             foreach (Node child in node.children)
             {
-                g.DrawLine(blackPen, new Point((int)(node.collider.x + node.lowerConn.x), (int)(node.collider.y + node.lowerConn.y)), 
-                                     new Point((int)(child.collider.x + child.upperConn.x), (int)(child.collider.y + child.upperConn.y)));
+                g.DrawLine(blackPen, new Point((int)(node.collider.x + node.lowerConn.x - scrollPosition.X), (int)(node.collider.y + node.lowerConn.y - scrollPosition.Y)), 
+                                     new Point((int)(child.collider.x + child.upperConn.x - scrollPosition.X), (int)(child.collider.y + child.upperConn.y - scrollPosition.Y)));
             }
 
             blackPen.Dispose();
