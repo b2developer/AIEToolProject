@@ -11,30 +11,35 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 
+
 namespace AIEToolProject.Source
 {
     /*
-    * class BaseComponent
+    * class BaseState
+    * implements ICloneable
     * 
-    * the base component that gives base objects functionality
+    * a holder for gameobjects in a static state
+    * uses XML to deep-copy itself
     * 
     * author: Bradley Booth, Academy of Interactive Entertainment, 2017
     */
-    public class BaseComponent
+    public class BaseState : ICloneable
     {
-        [XmlIgnore]
-        //reference to the game object holding the component
-        public BaseObject container = null;
 
-        //used for copying
-        public int index = 0;
+        //list of objects held by the state
+        List<BaseObject> objects;
 
         /*
-        * public BaseComponent() 
-        * default constructor
-        * 
+        * BaseState()
+        * constructor, defines the new list
         */
-        public BaseComponent()
+        public BaseState()
+        {
+            objects = new List<BaseObject>();
+        }
+
+
+        public object Clone()
         {
 
         }

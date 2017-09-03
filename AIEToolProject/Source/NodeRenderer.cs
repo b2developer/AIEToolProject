@@ -46,7 +46,7 @@ namespace AIEToolProject.Source
         {
 
             //the black pen is a commonly needed pen for the renderering
-            Pen blackPen = new Pen(Color.Black, 2.0f);
+            Pen blackPen = new Pen(Color.Black, 1.0f);
 
             //deduct what type of node this
             //-------------------------------------------------------------------------------------------------------------------------
@@ -217,6 +217,7 @@ namespace AIEToolProject.Source
 
         }
 
+
         /*
         * PreRender() 
         * draws the connections going away from the current node to the current form
@@ -230,7 +231,7 @@ namespace AIEToolProject.Source
             Point scrollPosition = form.safeScrollPosition;
 
             //create the pen to draw with
-            Pen blackPen = new Pen(Color.Black, 2.0f);
+            Pen blackPen = new Pen(Color.Black, 1.0f);
 
             //iterate through all nodes, drawing each
             foreach (Node child in node.children)
@@ -242,8 +243,43 @@ namespace AIEToolProject.Source
             blackPen.Dispose();
 
         }
-       
 
+
+        /*
+        * PostRender() 
+        * draws the upper-most layers of the node ie. text
+        * 
+        * @param EditorForm form - the form that called the render
+        * @param Graphics g - the grpahics object that will render the node
+        */
+        public void PostRender(EditorForm form, Graphics g)
+        {
+            //get the scroll position
+            Point scrollPosition = form.safeScrollPosition;
+
+            //define a font
+            Font font = new Font("Arial", node.textSize);
+
+            //create the brush to draw with
+            SolidBrush blackBrush = new SolidBrush(Color.Black);
+
+            //create a format object
+            StringFormat format = new StringFormat();
+
+            //set the text to allign to the centre
+            format.Alignment = StringAlignment.Center;
+            format.LineAlignment = StringAlignment.Center;
+
+            //transform position relative to the window
+            Point localPosition = new Point((int)(node.collider.x - scrollPosition.X), (int)(node.collider.y - scrollPosition.Y));
+
+            //draw the text
+            g.DrawString(node.name, font, blackBrush, localPosition, format);
+
+            font.Dispose();
+            blackBrush.Dispose();
+
+        }
 
     }
 }

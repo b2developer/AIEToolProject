@@ -24,10 +24,6 @@ namespace AIEToolProject
         //recieve events if the list is empty
         public List<EventListener> exclusives;
 
-        //empty buttons that define the scrollable area
-        public Button topLeft = null;
-        public Button bottomRight = null;
-
         //remembers the last valid scroll position
         public Point safeScrollPosition = new Point(0, 0);
 
@@ -505,6 +501,32 @@ namespace AIEToolProject
                         NodeRenderer renderer = comp as NodeRenderer;
 
                         renderer.Render(this, g);
+                    }
+                }
+            }
+
+            //iterate through all of the objects, post-rendering each
+            for (int i = objSize - 1; i >= 0; i--)
+            {
+                //store in a temp value for readability and performance
+                BaseObject obj = objects[i];
+
+                //get the size of the object's component list
+                int compSize = obj.components.Count;
+
+                //iterate through all components in the object, checking if each is a node renderer
+                for (int j = 0; j < obj.components.Count; j++)
+                {
+                    //store the base value
+                    BaseComponent comp = obj.components[j];
+
+                    //check if the component is an event listener
+                    if (comp is NodeRenderer)
+                    {
+                        //cast the base object to it's true type
+                        NodeRenderer renderer = comp as NodeRenderer;
+
+                        renderer.PostRender(this, g);
                     }
                 }
             }

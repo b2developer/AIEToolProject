@@ -16,13 +16,14 @@ namespace AIEToolProject.Source
 
     /*
     * class Circle
+    * implements ICloneable
     * 
     * a circle data structure, holds a point and radius
     * includes collision-detection functions
     * 
     * author: Bradley Booth, Academy of Interactive Entertainment, 2017
     */
-    public class Circle
+    public class Circle : ICloneable
     {
         //coordinates
         public float x = 0.0f;
@@ -55,6 +56,27 @@ namespace AIEToolProject.Source
             x = _x;
             y = _y;
             radius = _radius;
+        }
+
+
+        /*
+        * Clone 
+        * implement's ICloneable's Clone()
+        * creates another object identical to this
+        * 
+        * @param object - the object with matching member variables
+        */
+        public object Clone()
+        {
+            //create a new circle
+            Circle other = new Circle();
+
+            //copy member variables
+            other.x = x;
+            other.y = y;
+            other.radius = radius;
+
+            return other as object;
         }
 
 

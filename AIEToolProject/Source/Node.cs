@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
+using AIEToolProject.Source.Reference;
 
 namespace AIEToolProject.Source
 {
@@ -34,16 +35,21 @@ namespace AIEToolProject.Source
         LOWER,
     }
 
+
     /*
     * class Node
     * child object of BaseComponent
+    * implements ICloneable
     * 
     * a data structure that builds a tree
     * 
     * author: Bradley Booth, Academy of Interactive Entertainment, 2017
     */
-    public class Node : BaseComponent
+    public class Node : BaseComponent, ICloneable
     {
+
+        //the given name of the node
+        public string name = "";
 
         [XmlIgnore]
         //reference to the form that this resides in
@@ -55,6 +61,9 @@ namespace AIEToolProject.Source
         //connection colliders
         public Circle upperConn = null;
         public Circle lowerConn = null;
+
+        //size of the text that the node displays
+        public int textSize = 8;
 
         //used by file I/O / copying to maintain the tree structure
         public int index = 0;
@@ -69,6 +78,18 @@ namespace AIEToolProject.Source
 
         //event handling mode of the type
         public NodeFocusType focus = NodeFocusType.NONE;
+
+        //point that the mouse clicked on the node from
+        public Point mousePivot = new Point(0, 0);
+
+        //first point that the node was dragged from
+        public Point dragPivot = new Point(0, 0);
+
+        //minimum drag distance to be considered a drag and not a rename
+        public float minDragDistance = 2.5f;
+
+        //temp variable for max drag distance
+        public float maxDrag = 0.0f;
 
         //temporary line rendering variables when attempting to connect the node
         public bool lineEnabled = false;
@@ -85,6 +106,46 @@ namespace AIEToolProject.Source
         public Node()
         {
             children = new List<Node>();
+        }
+
+
+        /*
+        * Clone 
+        * implement's ICloneable's Clone()
+        * creates another object identical to this
+        * 
+        * @param object - the object with matching member variables
+        */
+        public object Clone()
+        {
+            //create a new node
+            Node other = new Node();
+
+            other.name = name;
+            other.form = form;
+
+            //deep-copy the circles
+            other.collider = collider.Clone() as Circle;
+            other.upperConn = upperConn.Clone() as Circle;
+
+            //create a new lower connection only if one exists
+            if (lowerConn != null)
+            {
+                other.collider = collider.Clone() as Circle;
+            }
+
+            other.textSize = textSize;
+            other.index = index;
+
+            //these don't get copied properly in a tree structure
+            other.parent = parent;
+            other.children = children;
+
+            other.type = type;
+            other.focus = focus;
+            other.minDragDistance = minDragDistance;
+
+            return other as object;
         }
 
 
@@ -180,6 +241,12 @@ namespace AIEToolProject.Source
                     if (eventListener.mouseEventArgs.Button == MouseButtons.Left)
                     {
                         form.exclusives.Add(eventListener);
+
+                        dragPivot = new Point((int)collider.x, (int)collider.y);
+                        maxDrag = 0.0f;
+
+                        mousePivot = new Point((int)(trueMousePosition.X - collider.x), (int)(trueMousePosition.Y - collider.y));
+
                         focus = NodeFocusType.BASE;
                     }
                     else if (eventListener.mouseEventArgs.Button == MouseButtons.Right)
@@ -230,8 +297,30 @@ namespace AIEToolProject.Source
             {
                 form.exclusives.Remove(eventListener);
 
+                //if the base of the node was selected
+                if (focus == NodeFocusType.BASE)
+                {
+                    //check if the node wasn't dragged far
+                    if (maxDrag < minDragDistance)
+                    {
+                        //create a naming dialog and set the result to this node's name
+                        NameDialog nameDialog = new NameDialog();
+
+                        //create an object to transfer to another scope
+                        StringReference reference = new StringReference();
+                        reference.data = name;
+
+                        nameDialog.immutable = reference;
+
+                        //initialise the name dialog
+                        nameDialog.SetDisplayText(name);
+                        nameDialog.ShowDialog();
+
+                        name = reference.data;
+                    }
+                }
                 //if the connections were selected, check for another connection that has been intersected
-                if (focus == NodeFocusType.UPPER || focus == NodeFocusType.LOWER)
+                else if (focus == NodeFocusType.UPPER || focus == NodeFocusType.LOWER)
                 {
                     List<Node> otherNodes = new List<Node>();
 
@@ -283,7 +372,7 @@ namespace AIEToolProject.Source
                         if (trueUpperConn.IntersectingPoint(lx2, ly2))
                         {
                             //test that the connection wont break the tree structure
-                            if (focus == NodeFocusType.LOWER && !TreeHelper.SharedRoot(this, other))
+                            if (focus == NodeFocusType.LOWER && !TreeHelper.SharedRoot(this, other) && other.parent == null)
                             {
                                 //connect this node as a parent of the other
                                 other.parent = this;
@@ -293,7 +382,7 @@ namespace AIEToolProject.Source
                             }
                         }
                         //is the mouse clicking the lower connection circle
-                        else if (trueLowerConn != null && trueLowerConn.IntersectingPoint(lx2, ly2))
+                        else if (trueLowerConn != null && trueLowerConn.IntersectingPoint(lx2, ly2) && this.parent == null)
                         {
                             //test that the connection wont break the tree structure
                             if (focus == NodeFocusType.UPPER && !TreeHelper.SharedRoot(this, other))
@@ -347,8 +436,17 @@ namespace AIEToolProject.Source
                 if (focus == NodeFocusType.BASE)
                 {
                     //set the new position
-                    collider.x = trueMousePosition.X;
-                    collider.y = trueMousePosition.Y;
+                    collider.x = trueMousePosition.X - mousePivot.X;
+                    collider.y = trueMousePosition.Y - mousePivot.Y;
+
+                    //test how far the node has been dragged
+                    Point dragPoint = new Point((int)(dragPivot.X - collider.x), (int)(dragPivot.Y - collider.y));
+                    float dragDist = dragPoint.X * dragPoint.X + dragPoint.Y * dragPoint.Y;
+
+                    if (dragDist > maxDrag)
+                    {
+                        maxDrag = dragDist;
+                    }
                 }
                 else if (focus == NodeFocusType.UPPER || focus == NodeFocusType.LOWER)
                 {

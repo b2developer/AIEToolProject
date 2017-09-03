@@ -13,16 +13,17 @@ namespace AIEToolProject.Source
     /*
     * class NodeSpawner
     * child object of BaseComponent
+    * implements ICloneable
     * 
     * a component that can create additional node
     * objects when called upon
     * 
     * author: Bradley Booth, Academy of Interactive Entertainment, 2017
     */
-    class NodeSpawner : BaseComponent
+    class NodeSpawner : BaseComponent, ICloneable
     {
         //radii of the spawned node's colliders
-        public float nodeRadius = 35.0f;
+        public float nodeRadius = 45.0f;
         public float connRadius = 15.0f;
 
         //reference to the form that is using it
@@ -33,6 +34,25 @@ namespace AIEToolProject.Source
         * constructor, defines the nodes list
         */
         public NodeSpawner() { }
+
+
+        /*
+        * Clone 
+        * implement's ICloneable's Clone()
+        * creates another object identical to this
+        * 
+        * @param object - the object with matching member variables
+        */
+        public object Clone()
+        {
+            //create a new node spawner
+            NodeSpawner other = new NodeSpawner();
+
+            other.nodeRadius = 45.0f;
+            other.connRadius = 15.0f;
+
+            return other as object;
+        }
   
 
         /*
