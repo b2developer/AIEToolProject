@@ -41,7 +41,7 @@ namespace AIEToolProject.Source
 
         public object Clone()
         {
-
+            return null;
         }
     }
 }
