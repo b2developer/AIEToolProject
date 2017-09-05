@@ -7,14 +7,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AIEToolProject.Source;
 using AIEToolProject.Source.Reference;
 
 namespace AIEToolProject
 {
     public partial class NameDialog : Form
     {
-
-        //object that transfers data out of this dialog
+        //the string that is being changed
         public StringReference immutable = null;
 
         public NameDialog()
@@ -25,28 +25,21 @@ namespace AIEToolProject
         /*
         * SetDisplayText 
         * 
-        * sets the text displayed in
-        * the input box
+        * sets the contents of the input box
         * 
-        * @param string data
+        * @param string display - the string displayed in the input box
         * @returns void
         */
-        public void SetDisplayText(string data)
+        public void SetDisplayText(string display)
         {
-            inputBox.Text = data;
+            this.inputBox.Text = display;
         }
-
-
-        private void inputBox_TextChanged(object sender, EventArgs e)
-        {
-            immutable.data = inputBox.Text;
-        }
-
 
         private void okButton_Click(object sender, EventArgs e)
         {
+            this.DialogResult = DialogResult.OK;
+            immutable.data = this.inputBox.Text;
             Close();
-            DialogResult = DialogResult.OK;
         }
     }
 }

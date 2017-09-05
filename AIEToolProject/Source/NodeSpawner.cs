@@ -40,7 +40,7 @@ namespace AIEToolProject.Source
         * Clone 
         * implement's ICloneable's Clone()
         * creates another object identical to this
-        * 
+        * km
         * @param object - the object with matching member variables
         */
         public object Clone()
