@@ -180,6 +180,7 @@ namespace AIEToolProject
             }
         }
 
+
         /*
         * save_asButton_Click 
         * 
@@ -199,6 +200,31 @@ namespace AIEToolProject
 
                 //serialise to a file
                 TreeHelper.SaveState(activeChild, true);
+            }
+        }
+
+
+        /*
+        * exportButton_Click 
+        * 
+        * callback when the export button is clicked, opens an additional file dialog
+        * 
+        * @param object sender - the object that sent the event
+        * @param EventArgs e - description of the event
+        * @returns void
+        */
+        private void exportButton_Click(object sender, EventArgs e)
+        {
+            //check that the program has a window open
+            if (ActiveMdiChild != null)
+            {
+                //create a export menu
+                ExportDialog ed = new ExportDialog();
+
+                //set the caller
+                ed.caller = ActiveMdiChild as EditorForm;
+
+                ed.Show();
             }
         }
 

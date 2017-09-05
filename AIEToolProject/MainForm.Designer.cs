@@ -84,36 +84,37 @@
             // newButton
             // 
             this.newButton.Name = "newButton";
-            this.newButton.Size = new System.Drawing.Size(114, 22);
+            this.newButton.Size = new System.Drawing.Size(152, 22);
             this.newButton.Text = "New";
             this.newButton.Click += new System.EventHandler(this.newButton_Click);
             // 
             // openButton
             // 
             this.openButton.Name = "openButton";
-            this.openButton.Size = new System.Drawing.Size(114, 22);
+            this.openButton.Size = new System.Drawing.Size(152, 22);
             this.openButton.Text = "Open";
             this.openButton.Click += new System.EventHandler(this.openButton_Click);
             // 
             // saveButton
             // 
             this.saveButton.Name = "saveButton";
-            this.saveButton.Size = new System.Drawing.Size(114, 22);
+            this.saveButton.Size = new System.Drawing.Size(152, 22);
             this.saveButton.Text = "Save";
             this.saveButton.Click += new System.EventHandler(this.saveButton_Click);
             // 
             // save_asButton
             // 
             this.save_asButton.Name = "save_asButton";
-            this.save_asButton.Size = new System.Drawing.Size(114, 22);
+            this.save_asButton.Size = new System.Drawing.Size(152, 22);
             this.save_asButton.Text = "Save As";
             this.save_asButton.Click += new System.EventHandler(this.save_asButton_Click);
             // 
             // exportButton
             // 
             this.exportButton.Name = "exportButton";
-            this.exportButton.Size = new System.Drawing.Size(114, 22);
+            this.exportButton.Size = new System.Drawing.Size(152, 22);
             this.exportButton.Text = "Export";
+            this.exportButton.Click += new System.EventHandler(this.exportButton_Click);
             // 
             // editButton
             // 

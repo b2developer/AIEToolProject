@@ -53,6 +53,54 @@ namespace AIEToolProject.Source
 
 
         /*
+        * extractTree
+        * 
+        * gets the tree structure from the editor form's objects
+        * 
+        * @param EditorForm form - the form to extract the tree from
+        * @returns Tree - the tree structure 
+        */
+        public static Tree extractTree(EditorForm form)
+        {
+            //define the object to serialise
+            Tree tree = new Tree();
+
+            //get the size of the objects list
+            int objSize = form.objects.Count;
+
+            //iterate through all objects looking for nodes
+            for (int i = 0; i < objSize; i++)
+            {
+                //store in a temp variable for performance and readability
+                BaseObject obj = form.objects[i];
+
+                //get the size of the components list
+                int compSize = obj.components.Count;
+
+                //iterate through all components, searching for a node component
+                for (int j = 0; j < compSize; j++)
+                {
+                    BaseComponent comp = obj.components[j];
+
+                    //check that the component is a node
+                    if (comp is Node)
+                    {
+                        //cast the node to it's true type
+                        Node node = comp as Node;
+
+                        //add the node to the tree
+                        tree.nodes.Add(node);
+                    }
+                }
+            }
+
+            tree.Index();
+
+            return tree;
+        }
+
+
+        /*
         * LoadState 
         * 
         * de-serialises an XML file onto an editor form
@@ -187,38 +235,7 @@ namespace AIEToolProject.Source
                 StreamWriter streamWriter = new StreamWriter(fullPath);
 
                 //define the object to serialise
-                Tree tree = new Tree();
-
-                //get the size of the objects list
-                int objSize = form.objects.Count;
-
-                //iterate through all objects looking for nodes
-                for (int i = 0; i < objSize; i++)
-                {
-                    //store in a temp variable for performance and readability
-                    BaseObject obj = form.objects[i];
-
-                    //get the size of the components list
-                    int compSize = obj.components.Count;
-
-                    //iterate through all components, searching for a node component
-                    for (int j = 0; j < compSize; j++)
-                    {
-                        BaseComponent comp = obj.components[j];
-
-                        //check that the component is a node
-                        if (comp is Node)
-                        {
-                            //cast the node to it's true type
-                            Node node = comp as Node;
-
-                            //add the node to the tree
-                            tree.nodes.Add(node);
-                        }
-                    }
-                }
-
-                tree.Index();
+                Tree tree = extractTree(form);
 
                 //serialise the tree
                 serialiser.Serialize(streamWriter, tree);

@@ -40,12 +40,13 @@ namespace AIEToolProject.Source
     * class Node
     * child object of BaseComponent
     * implements ICloneable
+    * implements IComparable
     * 
     * a data structure that builds a tree
     * 
     * author: Bradley Booth, Academy of Interactive Entertainment, 2017
     */
-    public class Node : BaseComponent, ICloneable
+    public class Node : BaseComponent, ICloneable, IComparable
     {
 
         //the given name of the node
@@ -64,9 +65,6 @@ namespace AIEToolProject.Source
 
         //size of the text that the node displays
         public int textSize = 8;
-
-        //used by file I/O / copying to maintain the tree structure
-        public int index = 0;
 
         //the structure of the node in the tree
         [XmlIgnore]
@@ -146,6 +144,36 @@ namespace AIEToolProject.Source
             other.minDragDistance = minDragDistance;
 
             return other as object;
+        }
+
+
+        /*
+        * CompareTo
+        * implements IComparable's CompareTo(object other)
+        * 
+        * compares two nodes using their 'x' coordinate
+        * 
+        * @param object other - the other node to compare
+        * @returns int - indicating the relative order to the other node (-1 before, 0 same, 1 after) 
+        */ 
+        public int CompareTo(object other)
+        {
+            //covert the object to it's true type
+            Node otherNode = other as Node;
+
+            //compare using 'x' axis
+            if (otherNode.collider.x > collider.x)
+            {
+                return -1;
+            }
+            else if (otherNode.collider.x == collider.x)
+            {
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
         }
 
 
