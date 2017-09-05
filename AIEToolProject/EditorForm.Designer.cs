@@ -62,6 +62,7 @@
             this.Controls.Add(this.hScrollBar);
             this.DoubleBuffered = true;
             this.Name = "EditorForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Untitled";
             this.TransparencyKey = System.Drawing.Color.Transparent;
             this.Load += new System.EventHandler(this.EditorForm_Load);
