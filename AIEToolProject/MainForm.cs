@@ -159,6 +159,58 @@ namespace AIEToolProject
 
 
         /*
+        * MainForm_DragDrop 
+        * 
+        * callback when data from other sources is dragged onto the form
+        * 
+        * @param object sender - the object that sent the event
+        * @param EventArgs e - description of the event
+        * @returns void
+        */
+        private void MainForm_DragOver(object sender, DragEventArgs e)
+        {
+            //test that the data is a text file (XML)
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+        }
+
+
+        /*
+        * MainForm_DragDrop 
+        * 
+        * callback when data from a drag and drop is completed
+        * 
+        * @param object sender - the object that sent the event
+        * @param EventArgs e - description of the event
+        * @returns void
+        */
+        private void MainForm_DragDrop(object sender, DragEventArgs e)
+        {
+            //test that the data is a text file (XML)
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                //create a new EditorForm
+                EditorForm newChild = new EditorForm();
+
+                //get all of the file paths
+                string[] paths = e.Data.GetData(DataFormats.FileDrop, true) as string[];
+
+                if (TreeHelper.LoadState(newChild, paths[0]))
+                {
+                    newChild.MdiParent = this;
+
+                    //open the window
+                    newChild.Show();
+                    newChild.Select();
+                }
+
+            }
+        }
+
+
+        /*
         * saveButton_Click 
         * 
         * callback when the save button is clicked, can open an additional file dialog
@@ -243,5 +295,6 @@ namespace AIEToolProject
 
         }
 
+       
     }
 }

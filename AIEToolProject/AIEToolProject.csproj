@@ -93,6 +93,7 @@
     <Compile Include="Source\BaseComponent.cs" />
     <Compile Include="Source\EventListener.cs" />
     <Compile Include="Source\Exporter\BaseExporter.cs" />
+    <Compile Include="Source\Exporter\CPP_Exporter.cs" />
     <Compile Include="Source\Exporter\CS_Exporter.cs" />
     <Compile Include="Source\Node.cs" />
     <Compile Include="Source\NodeRenderer.cs" />

@@ -80,7 +80,21 @@ namespace AIEToolProject
             }
 
             //create a new exporter to use
-            BaseExporter exporter = new CS_Exporter();
+            BaseExporter exporter = null;
+
+            //deduct the selected programming language and create an exporter for it
+            if (csRadio.Checked)
+            {
+                exporter = new CS_Exporter();
+            }
+            else if (cppRadio.Checked)
+            {
+                exporter = new CPP_Exporter();
+            }
+            else if (pythonRadio.Checked)
+            {
+                throw new NotImplementedException();
+            }
 
             //sort the tree's items so that left children are always executed first
             exportTree.SortTree();
@@ -91,7 +105,7 @@ namespace AIEToolProject
             //set the directory of the exporter
             exporter.exportingPath = selectedDirectory;
 
-            //call the exporter to create the file
+            //call the exporter to create the file/s
             exporter.Initialise();
             exporter.CreateInputClass();
             exporter.CreateFunctionReferences();
@@ -101,6 +115,8 @@ namespace AIEToolProject
             exporter.DefineStructure();
             exporter.AssignFunctionReferences();
             exporter.CleanUp();
+
+            Close();
         }
     }
 }

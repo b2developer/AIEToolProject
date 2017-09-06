@@ -106,9 +106,10 @@ namespace AIEToolProject.Source
         * de-serialises an XML file onto an editor form
         * 
         * @param EditorForm form - the form to load the data to
+        * @param string path = "" - a default path to load from, skips requesting a file path
         * @returns bool - indicates success/failure
         */
-        public static bool LoadState(EditorForm form)
+        public static bool LoadState(EditorForm form, string path = "")
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
@@ -117,16 +118,36 @@ namespace AIEToolProject.Source
             openFileDialog.RestoreDirectory = true;
 
             //check the the file dialog found a file to deserialise
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            if (path != "" || openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                //set the name of the form
-                form.Text = openFileDialog.SafeFileName.Split('.')[0];
+                //set the window name of the form based on whether a path was given or not
+                if (path == "")
+                {
+                    //set the name of the form
+                    form.Text = openFileDialog.SafeFileName.Split('.')[0];
+                }
+                else
+                {
+                    //format the string
+                    string[] slashSplit = path.Split('\\');
+                    string[] dotSplit = slashSplit[slashSplit.Count() - 1].Split('.');
+
+                    form.Text = dotSplit[0];
+                }
 
                 //create a serialiser object for the tree
                 XmlSerializer serialiser = new XmlSerializer(typeof(Tree));
 
+                string loadedPath = path;
+
+                //check if a path was given
+                if (loadedPath == "")
+                {
+                    loadedPath = openFileDialog.FileName;
+                }
+
                 //create a file reader for the tree
-                StreamReader streamReader = new StreamReader(openFileDialog.FileName);
+                StreamReader streamReader = new StreamReader(loadedPath);
 
                 try
                 {
@@ -169,7 +190,7 @@ namespace AIEToolProject.Source
                     }
 
                     //set the loaded path
-                    form.loadedPath = openFileDialog.FileName;
+                    form.loadedPath = loadedPath;
 
                     streamReader.Close();
 
