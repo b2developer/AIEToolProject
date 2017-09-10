@@ -51,5 +51,10 @@ namespace AIEToolProject
             immutable.data = this.inputBox.Text;
             Close();
         }
+
+        private void NameDialog_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
