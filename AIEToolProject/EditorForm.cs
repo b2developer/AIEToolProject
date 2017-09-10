@@ -27,6 +27,9 @@ namespace AIEToolProject
         //container of previous states (used for undo operations)
         public List<BaseState> stateBuffer;
 
+        //maximum amount of states that can occupy the state buffer
+        public int maxStates = 5;
+
         //container for event listers that exclusively recieve the events, all event listers
         //recieve events if the list is empty
         public List<EventListener> exclusives;
@@ -102,6 +105,13 @@ namespace AIEToolProject
 
             stateBuffer.Add(state.Clone() as BaseState);
 
+            //remove the earliest undo if the limit has been reached
+            if (stateBuffer.Count > maxStates)
+            {
+                stateBuffer.RemoveAt(0);
+                undoI--;
+            }
+
         }
 
 
@@ -131,6 +141,32 @@ namespace AIEToolProject
             }
         }
 
+
+        /*
+        * Redo 
+        * 
+        * assign the state in front of the current state as the active state
+        * 
+        * @returns void
+        */
+        public void Redo()
+        {
+            //check that there is a state to go back to
+            if (undoI < stateBuffer.Count - 2)
+            {
+
+                //increment the undo counter
+                undoI++;
+
+                state = stateBuffer[undoI + 1];
+
+                SetScrollableArea(windowPadding);
+
+                //force the form to re-draw itself
+                Invalidate();
+                this.Refresh();
+            }
+        }
 
         /*
         * SetScrollableArea

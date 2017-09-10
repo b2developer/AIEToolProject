@@ -38,6 +38,9 @@
             this.save_asButton = new System.Windows.Forms.ToolStripMenuItem();
             this.exportButton = new System.Windows.Forms.ToolStripMenuItem();
             this.editButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.undoButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.redoButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.windowButton = new System.Windows.Forms.ToolStripMenuItem();
             this.toolPanel = new System.Windows.Forms.Panel();
             this.decoratorButton = new System.Windows.Forms.Button();
             this.sequenceButton = new System.Windows.Forms.Button();
@@ -45,9 +48,6 @@
             this.conditionButton = new System.Windows.Forms.Button();
             this.actionButton = new System.Windows.Forms.Button();
             this.loopTimer = new System.Windows.Forms.Timer(this.components);
-            this.windowButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.undoButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.redoButton = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuStrip.SuspendLayout();
             this.toolPanel.SuspendLayout();
             this.SuspendLayout();
@@ -81,35 +81,35 @@
             // newButton
             // 
             this.newButton.Name = "newButton";
-            this.newButton.Size = new System.Drawing.Size(152, 22);
+            this.newButton.Size = new System.Drawing.Size(114, 22);
             this.newButton.Text = "New";
             this.newButton.Click += new System.EventHandler(this.newButton_Click);
             // 
             // openButton
             // 
             this.openButton.Name = "openButton";
-            this.openButton.Size = new System.Drawing.Size(152, 22);
+            this.openButton.Size = new System.Drawing.Size(114, 22);
             this.openButton.Text = "Open";
             this.openButton.Click += new System.EventHandler(this.openButton_Click);
             // 
             // saveButton
             // 
             this.saveButton.Name = "saveButton";
-            this.saveButton.Size = new System.Drawing.Size(152, 22);
+            this.saveButton.Size = new System.Drawing.Size(114, 22);
             this.saveButton.Text = "Save";
             this.saveButton.Click += new System.EventHandler(this.saveButton_Click);
             // 
             // save_asButton
             // 
             this.save_asButton.Name = "save_asButton";
-            this.save_asButton.Size = new System.Drawing.Size(152, 22);
+            this.save_asButton.Size = new System.Drawing.Size(114, 22);
             this.save_asButton.Text = "Save As";
             this.save_asButton.Click += new System.EventHandler(this.save_asButton_Click);
             // 
             // exportButton
             // 
             this.exportButton.Name = "exportButton";
-            this.exportButton.Size = new System.Drawing.Size(152, 22);
+            this.exportButton.Size = new System.Drawing.Size(114, 22);
             this.exportButton.Text = "Export";
             this.exportButton.Click += new System.EventHandler(this.exportButton_Click);
             // 
@@ -121,6 +121,26 @@
             this.editButton.Name = "editButton";
             this.editButton.Size = new System.Drawing.Size(39, 20);
             this.editButton.Text = "Edit";
+            // 
+            // undoButton
+            // 
+            this.undoButton.Name = "undoButton";
+            this.undoButton.Size = new System.Drawing.Size(145, 22);
+            this.undoButton.Text = "Undo (Ctrl-Z)";
+            this.undoButton.Click += new System.EventHandler(this.undoButton_Click);
+            // 
+            // redoButton
+            // 
+            this.redoButton.Name = "redoButton";
+            this.redoButton.Size = new System.Drawing.Size(152, 22);
+            this.redoButton.Text = "Redo (Ctrl-Y)";
+            this.redoButton.Click += new System.EventHandler(this.redoButton_Click);
+            // 
+            // windowButton
+            // 
+            this.windowButton.Name = "windowButton";
+            this.windowButton.Size = new System.Drawing.Size(63, 20);
+            this.windowButton.Text = "Window";
             // 
             // toolPanel
             // 
@@ -193,25 +213,6 @@
             this.loopTimer.Enabled = true;
             this.loopTimer.Interval = 5;
             // 
-            // windowButton
-            // 
-            this.windowButton.Name = "windowButton";
-            this.windowButton.Size = new System.Drawing.Size(63, 20);
-            this.windowButton.Text = "Window";
-            // 
-            // undoButton
-            // 
-            this.undoButton.Name = "undoButton";
-            this.undoButton.Size = new System.Drawing.Size(152, 22);
-            this.undoButton.Text = "Undo (Ctrl-Z)";
-            this.undoButton.Click += new System.EventHandler(this.undoButton_Click);
-            // 
-            // redoButton
-            // 
-            this.redoButton.Name = "redoButton";
-            this.redoButton.Size = new System.Drawing.Size(152, 22);
-            this.redoButton.Text = "Redo (Ctrl-Y)";
-            // 
             // MainForm
             // 
             this.AllowDrop = true;
@@ -221,13 +222,16 @@
             this.ClientSize = new System.Drawing.Size(704, 442);
             this.Controls.Add(this.toolPanel);
             this.Controls.Add(this.MenuStrip);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
+            this.KeyPreview = true;
             this.MainMenuStrip = this.MenuStrip;
             this.Name = "MainForm";
             this.Text = "Behaviour Tree Editor";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.MainForm_DragDrop);
             this.DragOver += new System.Windows.Forms.DragEventHandler(this.MainForm_DragOver);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
             this.MenuStrip.ResumeLayout(false);
             this.MenuStrip.PerformLayout();
             this.toolPanel.ResumeLayout(false);

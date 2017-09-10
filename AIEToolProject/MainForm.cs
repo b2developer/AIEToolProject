@@ -306,7 +306,7 @@ namespace AIEToolProject
 
 
         /*
-        * exportButton_Click 
+        * undoButton_Click 
         * 
         * callback when the undo button is clicked
         * 
@@ -320,6 +320,57 @@ namespace AIEToolProject
             if (ActiveMdiChild != null)
             {
                 (ActiveMdiChild as EditorForm).Undo();
+            }
+        }
+
+
+        /*
+        * redoButton_Click 
+        * 
+        * callback when the redo button is clicked
+        * 
+        * @param object sender - the object that sent the event
+        * @param EventArgs e - description of the event
+        * @returns void
+        */
+        private void redoButton_Click(object sender, EventArgs e)
+        {
+            //check that the program has a editor open
+            if (ActiveMdiChild != null)
+            {
+                (ActiveMdiChild as EditorForm).Redo();
+            }
+        }
+
+
+        /*
+        * MainForm_KeyDown 
+        * 
+        * callback when key/s are pressed
+        * 
+        * @param object sender - the object that sent the event
+        * @param KeyEventArgs e - description of the key event
+        * @returns void
+        */
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            //check that the program has a editor open
+            if (ActiveMdiChild != null)
+            {
+                //check if control is down
+                if (e.Control)
+                {
+                    //check for the undo/redo key (Z/Y)
+                    if (e.KeyCode == Keys.Z)
+                    {
+                        (ActiveMdiChild as EditorForm).Undo();
+                    }
+                    else if (e.KeyCode == Keys.Y)
+                    {
+                        (ActiveMdiChild as EditorForm).Redo();
+                    }
+                }
+
             }
         }
     }
