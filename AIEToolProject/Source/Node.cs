@@ -39,14 +39,13 @@ namespace AIEToolProject.Source
     /*
     * class Node
     * child object of BaseComponent
-    * implements ICloneable
     * implements IComparable
     * 
     * a data structure that builds a tree
     * 
     * author: Bradley Booth, Academy of Interactive Entertainment, 2017
     */
-    public class Node : BaseComponent, ICloneable, IComparable
+    public class Node : BaseComponent, IComparable
     {
 
         //the given name of the node
@@ -109,15 +108,18 @@ namespace AIEToolProject.Source
 
         /*
         * Clone 
-        * implement's ICloneable's Clone()
+        * overrides BaseComponent's Clone()
+        * 
         * creates another object identical to this
         * 
         * @param object - the object with matching member variables
         */
-        public object Clone()
+        public override object Clone()
         {
             //create a new node
             Node other = new Node();
+
+            other.index = index;
 
             other.name = name;
             other.form = form;
@@ -129,7 +131,7 @@ namespace AIEToolProject.Source
             //create a new lower connection only if one exists
             if (lowerConn != null)
             {
-                other.collider = collider.Clone() as Circle;
+                other.lowerConn = lowerConn.Clone() as Circle;
             }
 
             other.textSize = textSize;
@@ -137,13 +139,70 @@ namespace AIEToolProject.Source
 
             //these don't get copied properly in a tree structure
             other.parent = parent;
-            other.children = children;
+
+            //create a new list of children
+            other.children = new List<Node>();
+
+            //get the size of the children list
+            int childSize = children.Count;
+
+            //iterate through the children, assigning them to the new array (temporarily)
+            for (int i = 0; i < childSize; i++)
+            {
+                other.children.Add(children[i]);
+            }
 
             other.type = type;
             other.focus = focus;
             other.minDragDistance = minDragDistance;
 
             return other as object;
+        }
+
+
+        /*
+        * Stitch
+        * overrides BaseComponent's Stitch(List<BaseComponent> components)
+        * 
+        * re-links references after the base object is duplicated
+        * 
+        * @param List<BaseComponent> components - list of components
+        * @returns void
+        */
+        public override void Stitch(List<BaseComponent> components)
+        {
+            //get the size of the components size
+            int compSize = container.components.Count;
+
+            //iterate through all of the components
+            for (int i = 0; i < compSize; i++)
+            {
+                //store in a temporary value for performance and readability
+                BaseComponent component = container.components[i];
+
+                //test if the component is a event-listener
+                if (component is EventListener)
+                {
+                    //cast the component to it's deducted type
+                    EventListener el = component as EventListener;
+
+                    el.mousePressed = MousePressedCallback;
+                    el.mouseReleased = MouseReleasedCallback;
+                    el.mouseMoved = MouseMovedCallback;
+                }
+            }
+
+            //only get the parent if one exists
+            if (parent != null)
+            {
+                parent = components[parent.index] as Node;
+            }
+
+            //iterate through all of the children
+            for (int i = 0; i < children.Count; i++)
+            {
+                children[i] = components[children[i].index] as Node;
+            }
         }
 
 
@@ -155,7 +214,7 @@ namespace AIEToolProject.Source
         * 
         * @param object other - the other node to compare
         * @returns int - indicating the relative order to the other node (-1 before, 0 same, 1 after) 
-        */ 
+        */
         public int CompareTo(object other)
         {
             //covert the object to it's true type
@@ -229,6 +288,8 @@ namespace AIEToolProject.Source
                     }
                     else if (eventListener.mouseEventArgs.Button == MouseButtons.Right)
                     {
+                        form.Record();
+
                         //disconnect the parent
                         if (parent != null)
                         {
@@ -254,6 +315,8 @@ namespace AIEToolProject.Source
                     }
                     else if (eventListener.mouseEventArgs.Button == MouseButtons.Right)
                     {
+                        form.Record();
+
                         //disconnect all of the children
                         foreach (Node child in children)
                         {
@@ -270,6 +333,8 @@ namespace AIEToolProject.Source
                     {
                         form.exclusives.Add(eventListener);
 
+                        form.Record();
+
                         dragPivot = new Point((int)collider.x, (int)collider.y);
                         maxDrag = 0.0f;
 
@@ -279,9 +344,10 @@ namespace AIEToolProject.Source
                     }
                     else if (eventListener.mouseEventArgs.Button == MouseButtons.Right)
                     {
-                        //remove the node from the tree and form
+                        form.Record();
 
-                        form.objects.Remove(this.container);
+                        //remove the node from the tree and form
+                        form.state.objects.Remove(this.container);
 
                         //disconnect the parent
                         if (parent != null)
@@ -294,6 +360,7 @@ namespace AIEToolProject.Source
                         {
                             child.parent = null;
                         }
+
                     }
                 }
 
@@ -344,8 +411,14 @@ namespace AIEToolProject.Source
                         nameDialog.SetDisplayText(name);
                         nameDialog.ShowDialog();
 
+                        if (name != reference.data)
+                        {
+                            form.Record();
+                        }
+
                         name = reference.data;
                     }
+
                 }
                 //if the connections were selected, check for another connection that has been intersected
                 else if (focus == NodeFocusType.UPPER || focus == NodeFocusType.LOWER)
@@ -353,13 +426,13 @@ namespace AIEToolProject.Source
                     List<Node> otherNodes = new List<Node>();
 
                     //get the size of the form's objects list
-                    int size = form.objects.Count;
+                    int size = form.state.objects.Count;
 
                     //iterate through all of the objects
                     for (int i = 0; i < size; i++)
                     {
                         //temp varaible for readability and performance
-                        BaseObject obj = form.objects[i];
+                        BaseObject obj = form.state.objects[i];
 
                         //get the size of the objects components list
                         int compSize = obj.components.Count;
@@ -402,6 +475,8 @@ namespace AIEToolProject.Source
                             //test that the connection wont break the tree structure
                             if (focus == NodeFocusType.LOWER && !TreeHelper.SharedRoot(this, other) && other.parent == null)
                             {
+                                form.Record();
+
                                 //connect this node as a parent of the other
                                 other.parent = this;
                                 children.Add(other);
@@ -415,6 +490,8 @@ namespace AIEToolProject.Source
                             //test that the connection wont break the tree structure
                             if (focus == NodeFocusType.UPPER && !TreeHelper.SharedRoot(this, other))
                             {
+                                form.Record();
+
                                 //connect this node as a child of other
                                 this.parent = other;
                                 other.children.Add(this);

@@ -20,7 +20,6 @@ namespace AIEToolProject.Source
     * data structure based on one parent and multiple children
     * creating a branching structure
     * 
-    * 
     * author: Bradley Booth, Academy of Interactive Entertainment, 2017
     */
     public class Tree

@@ -35,6 +35,16 @@ namespace AIEToolProject
             this.inputBox.Text = display;
         }
 
+
+        /*
+        * okButton_Click 
+        * 
+        * callback when the ok button is clicked
+        * 
+        * @param object sender - the object that sent the event
+        * @param EventArgs e - description of the event
+        * @returns void
+        */
         private void okButton_Click(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.OK;

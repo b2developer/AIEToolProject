@@ -66,13 +66,13 @@ namespace AIEToolProject.Source
             Tree tree = new Tree();
 
             //get the size of the objects list
-            int objSize = form.objects.Count;
+            int objSize = form.state.objects.Count;
 
             //iterate through all objects looking for nodes
             for (int i = 0; i < objSize; i++)
             {
                 //store in a temp variable for performance and readability
-                BaseObject obj = form.objects[i];
+                BaseObject obj = form.state.objects[i];
 
                 //get the size of the components list
                 int compSize = obj.components.Count;
@@ -186,7 +186,7 @@ namespace AIEToolProject.Source
                         obj.components.Add(listener as BaseComponent);
 
                         //add the object to the form
-                        form.objects.Insert(0, obj);
+                        form.state.objects.Insert(0, obj);
                     }
 
                     //set the loaded path

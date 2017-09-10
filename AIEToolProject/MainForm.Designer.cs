@@ -38,11 +38,6 @@
             this.save_asButton = new System.Windows.Forms.ToolStripMenuItem();
             this.exportButton = new System.Windows.Forms.ToolStripMenuItem();
             this.editButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.undoButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.copyButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.pasteButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.settingsButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.windowButton = new System.Windows.Forms.ToolStripMenuItem();
             this.toolPanel = new System.Windows.Forms.Panel();
             this.decoratorButton = new System.Windows.Forms.Button();
             this.sequenceButton = new System.Windows.Forms.Button();
@@ -50,6 +45,9 @@
             this.conditionButton = new System.Windows.Forms.Button();
             this.actionButton = new System.Windows.Forms.Button();
             this.loopTimer = new System.Windows.Forms.Timer(this.components);
+            this.windowButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.undoButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.redoButton = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuStrip.SuspendLayout();
             this.toolPanel.SuspendLayout();
             this.SuspendLayout();
@@ -60,7 +58,6 @@
             this.MenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileButton,
             this.editButton,
-            this.settingsButton,
             this.windowButton});
             this.MenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MenuStrip.MdiWindowListItem = this.windowButton;
@@ -84,35 +81,35 @@
             // newButton
             // 
             this.newButton.Name = "newButton";
-            this.newButton.Size = new System.Drawing.Size(114, 22);
+            this.newButton.Size = new System.Drawing.Size(152, 22);
             this.newButton.Text = "New";
             this.newButton.Click += new System.EventHandler(this.newButton_Click);
             // 
             // openButton
             // 
             this.openButton.Name = "openButton";
-            this.openButton.Size = new System.Drawing.Size(114, 22);
+            this.openButton.Size = new System.Drawing.Size(152, 22);
             this.openButton.Text = "Open";
             this.openButton.Click += new System.EventHandler(this.openButton_Click);
             // 
             // saveButton
             // 
             this.saveButton.Name = "saveButton";
-            this.saveButton.Size = new System.Drawing.Size(114, 22);
+            this.saveButton.Size = new System.Drawing.Size(152, 22);
             this.saveButton.Text = "Save";
             this.saveButton.Click += new System.EventHandler(this.saveButton_Click);
             // 
             // save_asButton
             // 
             this.save_asButton.Name = "save_asButton";
-            this.save_asButton.Size = new System.Drawing.Size(114, 22);
+            this.save_asButton.Size = new System.Drawing.Size(152, 22);
             this.save_asButton.Text = "Save As";
             this.save_asButton.Click += new System.EventHandler(this.save_asButton_Click);
             // 
             // exportButton
             // 
             this.exportButton.Name = "exportButton";
-            this.exportButton.Size = new System.Drawing.Size(114, 22);
+            this.exportButton.Size = new System.Drawing.Size(152, 22);
             this.exportButton.Text = "Export";
             this.exportButton.Click += new System.EventHandler(this.exportButton_Click);
             // 
@@ -120,42 +117,10 @@
             // 
             this.editButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.undoButton,
-            this.copyButton,
-            this.pasteButton});
+            this.redoButton});
             this.editButton.Name = "editButton";
             this.editButton.Size = new System.Drawing.Size(39, 20);
             this.editButton.Text = "Edit";
-            // 
-            // undoButton
-            // 
-            this.undoButton.Name = "undoButton";
-            this.undoButton.Size = new System.Drawing.Size(145, 22);
-            this.undoButton.Text = "Undo (Ctrl-Z)";
-            this.undoButton.Click += new System.EventHandler(this.undoButton_Click);
-            // 
-            // copyButton
-            // 
-            this.copyButton.Name = "copyButton";
-            this.copyButton.Size = new System.Drawing.Size(145, 22);
-            this.copyButton.Text = "Copy (Ctrl-C)";
-            // 
-            // pasteButton
-            // 
-            this.pasteButton.Name = "pasteButton";
-            this.pasteButton.Size = new System.Drawing.Size(145, 22);
-            this.pasteButton.Text = "Paste (Ctrl-V)";
-            // 
-            // settingsButton
-            // 
-            this.settingsButton.Name = "settingsButton";
-            this.settingsButton.Size = new System.Drawing.Size(61, 20);
-            this.settingsButton.Text = "Settings";
-            // 
-            // windowButton
-            // 
-            this.windowButton.Name = "windowButton";
-            this.windowButton.Size = new System.Drawing.Size(63, 20);
-            this.windowButton.Text = "Window";
             // 
             // toolPanel
             // 
@@ -227,7 +192,25 @@
             // 
             this.loopTimer.Enabled = true;
             this.loopTimer.Interval = 5;
-            this.loopTimer.Tick += new System.EventHandler(this.loopTimer_Tick);
+            // 
+            // windowButton
+            // 
+            this.windowButton.Name = "windowButton";
+            this.windowButton.Size = new System.Drawing.Size(63, 20);
+            this.windowButton.Text = "Window";
+            // 
+            // undoButton
+            // 
+            this.undoButton.Name = "undoButton";
+            this.undoButton.Size = new System.Drawing.Size(152, 22);
+            this.undoButton.Text = "Undo (Ctrl-Z)";
+            this.undoButton.Click += new System.EventHandler(this.undoButton_Click);
+            // 
+            // redoButton
+            // 
+            this.redoButton.Name = "redoButton";
+            this.redoButton.Size = new System.Drawing.Size(152, 22);
+            this.redoButton.Text = "Redo (Ctrl-Y)";
             // 
             // MainForm
             // 
@@ -260,21 +243,19 @@
         private System.Windows.Forms.ToolStripMenuItem openButton;
         private System.Windows.Forms.ToolStripMenuItem saveButton;
         private System.Windows.Forms.ToolStripMenuItem save_asButton;
-        private System.Windows.Forms.ToolStripMenuItem editButton;
-        private System.Windows.Forms.ToolStripMenuItem undoButton;
-        private System.Windows.Forms.ToolStripMenuItem copyButton;
-        private System.Windows.Forms.ToolStripMenuItem pasteButton;
-        private System.Windows.Forms.ToolStripMenuItem settingsButton;
         private System.Windows.Forms.Panel toolPanel;
         private System.Windows.Forms.Button actionButton;
         private System.Windows.Forms.ToolStripMenuItem newButton;
-        private System.Windows.Forms.ToolStripMenuItem windowButton;
+        private System.Windows.Forms.ToolStripMenuItem editButton;
         private System.Windows.Forms.Button conditionButton;
         private System.Windows.Forms.Button decoratorButton;
         private System.Windows.Forms.Button sequenceButton;
         private System.Windows.Forms.Button selectorButton;
         private System.Windows.Forms.Timer loopTimer;
         private System.Windows.Forms.ToolStripMenuItem exportButton;
+        private System.Windows.Forms.ToolStripMenuItem windowButton;
+        private System.Windows.Forms.ToolStripMenuItem undoButton;
+        private System.Windows.Forms.ToolStripMenuItem redoButton;
     }
 }
 

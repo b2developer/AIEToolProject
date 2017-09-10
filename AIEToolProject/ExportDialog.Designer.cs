@@ -37,12 +37,13 @@
             this.filePathTextBox = new System.Windows.Forms.TextBox();
             this.filePathButton = new System.Windows.Forms.Button();
             this.filePathLabel = new System.Windows.Forms.Label();
+            this.checkListControl1 = new ChecklistControl.CheckListControl();
             this.programPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // exportButton
             // 
-            this.exportButton.Location = new System.Drawing.Point(213, 144);
+            this.exportButton.Location = new System.Drawing.Point(213, 225);
             this.exportButton.Name = "exportButton";
             this.exportButton.Size = new System.Drawing.Size(102, 26);
             this.exportButton.TabIndex = 0;
@@ -55,7 +56,7 @@
             this.programPanel.Controls.Add(this.pythonRadio);
             this.programPanel.Controls.Add(this.cppRadio);
             this.programPanel.Controls.Add(this.csRadio);
-            this.programPanel.Location = new System.Drawing.Point(38, 101);
+            this.programPanel.Location = new System.Drawing.Point(38, 94);
             this.programPanel.Name = "programPanel";
             this.programPanel.Size = new System.Drawing.Size(89, 69);
             this.programPanel.TabIndex = 1;
@@ -70,6 +71,7 @@
             this.pythonRadio.TabStop = true;
             this.pythonRadio.Text = "Python";
             this.pythonRadio.UseVisualStyleBackColor = true;
+            this.pythonRadio.CheckedChanged += new System.EventHandler(this.pythonRadio_CheckedChanged);
             // 
             // cppRadio
             // 
@@ -81,6 +83,7 @@
             this.cppRadio.TabStop = true;
             this.cppRadio.Text = "C++";
             this.cppRadio.UseVisualStyleBackColor = true;
+            this.cppRadio.CheckedChanged += new System.EventHandler(this.cppRadio_CheckedChanged);
             // 
             // csRadio
             // 
@@ -93,11 +96,12 @@
             this.csRadio.TabStop = true;
             this.csRadio.Text = "C#";
             this.csRadio.UseVisualStyleBackColor = true;
+            this.csRadio.CheckedChanged += new System.EventHandler(this.csRadio_CheckedChanged);
             // 
             // programLabel
             // 
             this.programLabel.AutoSize = true;
-            this.programLabel.Location = new System.Drawing.Point(24, 85);
+            this.programLabel.Location = new System.Drawing.Point(24, 78);
             this.programLabel.Name = "programLabel";
             this.programLabel.Size = new System.Drawing.Size(119, 13);
             this.programLabel.TabIndex = 2;
@@ -132,12 +136,21 @@
             this.filePathLabel.Text = "File Path";
             this.filePathLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // checkListControl1
+            // 
+            this.checkListControl1.BackColor = System.Drawing.Color.White;
+            this.checkListControl1.Location = new System.Drawing.Point(192, 78);
+            this.checkListControl1.Name = "checkListControl1";
+            this.checkListControl1.Size = new System.Drawing.Size(123, 124);
+            this.checkListControl1.TabIndex = 6;
+            // 
             // ExportDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.ClientSize = new System.Drawing.Size(333, 184);
+            this.ClientSize = new System.Drawing.Size(333, 264);
+            this.Controls.Add(this.checkListControl1);
             this.Controls.Add(this.filePathLabel);
             this.Controls.Add(this.filePathButton);
             this.Controls.Add(this.filePathTextBox);
@@ -167,5 +180,6 @@
         private System.Windows.Forms.TextBox filePathTextBox;
         private System.Windows.Forms.Button filePathButton;
         private System.Windows.Forms.Label filePathLabel;
+        private ChecklistControl.CheckListControl checkListControl1;
     }
 }

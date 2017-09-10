@@ -36,6 +36,41 @@ namespace AIEToolProject.Source
 
 
         /*
+        * Clone 
+        * overrides BaseComponent's Clone()
+        * creates another object identical to this
+        * 
+        * @param object - the object with matching member variables
+        */
+        public override object Clone()
+        {
+            //create a new node renderer
+            NodeRenderer other = new NodeRenderer();
+
+            other.index = index;
+
+            other.node = node;
+
+            return other as object;
+        }
+
+
+        /*
+        * Stitch
+        * overrides BaseComponent's Stitch(List<BaseComponent> components)
+        * 
+        * re-links references after the base object is duplicated
+        * 
+        * @param List<BaseComponent> components - list of components
+        * @returns void
+        */
+        public override void Stitch(List<BaseComponent> components)
+        {
+            node = components[node.index] as Node;
+        }
+
+
+        /*
         * Render() 
         * draws the node to the current form
         * 

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AIEToolProject.Source;
+using ChecklistControl;
 
 namespace AIEToolProject
 {
@@ -18,7 +19,13 @@ namespace AIEToolProject
         public string loadedPath = "";
 
         //container of objects to update
-        public List<BaseObject> objects;
+        public BaseState state;
+
+        //flag indicating how far the buffer has moved back
+        private int undoI = -1;
+
+        //container of previous states (used for undo operations)
+        public List<BaseState> stateBuffer;
 
         //container for event listers that exclusively recieve the events, all event listers
         //recieve events if the list is empty
@@ -39,9 +46,13 @@ namespace AIEToolProject
         */
         public EditorForm()
         {
+
             InitializeComponent();
 
-            objects = new List<BaseObject>();
+            state = new BaseState();
+
+            stateBuffer = new List<BaseState>();
+
             exclusives = new List<EventListener>();
 
             BaseObject obj = new BaseObject();
@@ -61,8 +72,63 @@ namespace AIEToolProject
             obj.components.Add(listenerComp as EventListener);
             obj.components.Add(spawnerComp as NodeSpawner);
 
-            objects.Add(obj);
+            state.objects.Add(obj);
 
+        }
+
+
+        /*
+        * Record 
+        * 
+        * copies the current state to a buffer of states
+        * used to remember states in case an undo is requested
+        *
+        * @returns void
+        */
+        public void Record()
+        {
+            undoI++;
+
+            //get the size of the buffer
+            int bufferSize = stateBuffer.Count;
+
+            //check if a new operation is being made to a previous state
+            if (undoI != bufferSize)
+            {
+                //remove all future states as they aren't true anymore
+                stateBuffer.RemoveRange(undoI, bufferSize - undoI);
+                undoI = stateBuffer.Count;
+            }
+
+            stateBuffer.Add(state.Clone() as BaseState);
+
+        }
+
+
+        /*
+        * Undo 
+        * 
+        * assigns the latest state in the buffer as the active state
+        * and then removes it from the buffer
+        * 
+        * @returns void
+        */
+        public void Undo()
+        {
+            //check that there is a state to rewind to
+            if (undoI >= 0 && stateBuffer.Count > 0)
+            {
+                state = stateBuffer[undoI];
+
+                //decrement the undo counter
+                undoI--;
+
+                SetScrollableArea(windowPadding);
+
+                //force the form to re-draw itself
+                Invalidate();
+                this.Refresh(); 
+            }
         }
 
 
@@ -84,32 +150,14 @@ namespace AIEToolProject
             Point bottomRightBest = new Point(0, 0);
 
             //define a list of nodes to check
+            List<BaseComponent> comps = GetComponentsOfType(typeof(Node));
+
             List<Node> nodes = new List<Node>();
 
-            //get the size of the objects list
-            int objSize = objects.Count;
-
-            //iterate through all of the objects
-            for (int i = 0; i < objSize; i++)
+            //convert base component list to component list
+            foreach (BaseComponent bc in comps)
             {
-                //store in a temp value for performance and readability
-                BaseObject obj = objects[i];
-
-                //get the size of the object's components list
-                int compSize = obj.components.Count;
-
-                //iterate through all of the components in the object
-                for (int j = 0; j < compSize; j++)
-                {
-                    //store in a temp valu efor performance and readability
-                    BaseComponent comp = obj.components[j];
-
-                    //check that
-                    if (comp is Node)
-                    {
-                        nodes.Add(comp as Node);
-                    }
-                }
+                nodes.Add(bc as Node);
             }
 
             //default setting
@@ -213,38 +261,29 @@ namespace AIEToolProject
         */
         private void TriggerCallback(object sender, EventArgs e, CallbackType t)
         {
-            //get the size of the object list
-            int objSize = objects.Count;
 
-            //iterate through the objects, updating information
-            for (int i = 0; i < objSize; i++)
+            //define a list of nodes to check
+            List<BaseComponent> comps = GetComponentsOfType(typeof(EventListener));
+
+            List<EventListener> listeners = new List<EventListener>();
+
+            //convert base component list to component list
+            foreach (BaseComponent bc in comps)
             {
-                //store in a temp value for readability and performance
-                BaseObject obj = objects[i];
+                listeners.Add(bc as EventListener);
+            }
 
-                //get the size of the object's component list
-                int compSize = obj.components.Count;
-
-                //iterate through all components in the object, checking if each is an event listener
-                for (int j = 0; j < obj.components.Count; j++)
+            //iterate through all of the listeners, broadcasting the message
+            foreach (EventListener el in listeners)
+            {
+                if (e is MouseEventArgs)
                 {
-                    //store the base value
-                    BaseComponent comp = obj.components[j];
-
-                    //check if the component is an event listener
-                    if (comp is EventListener)
-                    {
-                        //cast the base component to it's true type
-                        EventListener eventListener = comp as EventListener;
-
-                        //update the correct information
-                        if (e is MouseEventArgs)
-                        {
-                            eventListener.mouseEventArgs = e as MouseEventArgs;
-                        }
-                    }
+                    el.mouseEventArgs = e as MouseEventArgs;
                 }
             }
+
+            //get the size of the object list
+            int objSize = state.objects.Count;
 
             //get the size of the exclusive listeners list
             int size = exclusives.Count;
@@ -252,10 +291,10 @@ namespace AIEToolProject
             if (size == 0)
             {
                 //iterate through all objects, sending all listeners the event
-                for (int i = 0; i < objects.Count; i++)
+                for (int i = 0; i < state.objects.Count; i++)
                 {
                     //store in a temp value for readability and performance
-                    BaseObject obj = objects[i];
+                    BaseObject obj = state.objects[i];
 
                     //get the size of the object's component list
                     int compSize = obj.components.Count;
@@ -272,7 +311,7 @@ namespace AIEToolProject
                             //cast the base component to it's true type
                             EventListener eventListener = comp as EventListener;
 
-                            int prevSize = objects.Count;
+                            int prevSize = state.objects.Count;
 
                             //call the requested type of callback
                             switch (t)
@@ -283,7 +322,7 @@ namespace AIEToolProject
                             }
 
                             //reverse the iterator effect to avoid skipping over items when one is deleted
-                            if (objects.Count < prevSize)
+                            if (state.objects.Count < prevSize)
                             {
                                 i--;
                             }
@@ -342,7 +381,7 @@ namespace AIEToolProject
         * @param EventArgs e - description of the event
         * @returns void
         */
-        private void EditorForm_MouseUp(object sender, MouseEventArgs e)
+        private void EditorForm_MouseUp(object sender, EventArgs e)
         {
             TriggerCallback(sender, e, CallbackType.MOUSE_RELEASED);
         }
@@ -357,7 +396,7 @@ namespace AIEToolProject
         * @param EventArgs e - description of the event
         * @returns void
         */
-        private void EditorForm_MouseMove(object sender, MouseEventArgs e)
+        private void EditorForm_MouseMove(object sender, EventArgs e)
         {
             TriggerCallback(sender, e, CallbackType.MOUSE_MOVED);
         }
@@ -414,7 +453,7 @@ namespace AIEToolProject
         public Point[] OffsetPolygon(Point[] local, Point point)
         {
             int size = local.Count();
-            
+
             //new array of transformed points
             Point[] transformed = new Point[size];
 
@@ -450,85 +489,33 @@ namespace AIEToolProject
             //get the graphics object to paint with
             Graphics g = e.Graphics;
 
-            //get the size of the objects list
-            int objSize = objects.Count;
+            //define a list of nodes to check
+            List<BaseComponent> comps = GetComponentsOfType(typeof(NodeRenderer));
 
-            //iterate through all of the objects, pre-rendering each
-            for (int i = objSize - 1; i >= 0; i--)
+            List<NodeRenderer> renderers = new List<NodeRenderer>();
+
+            //convert base component list to component list
+            foreach (BaseComponent bc in comps)
             {
-                //store in a temp value for readability and performance
-                BaseObject obj = objects[i];
-
-                //get the size of the object's component list
-                int compSize = obj.components.Count;
-
-                //iterate through all components in the object, checking if each is a node renderer
-                for (int j = 0; j < obj.components.Count; j++)
-                {
-                    //store the base value
-                    BaseComponent comp = obj.components[j];
-
-                    //check if the component is an event listener
-                    if (comp is NodeRenderer)
-                    {
-                        //cast the base object to it's true type
-                        NodeRenderer renderer = comp as NodeRenderer;
-
-                        renderer.PreRender(this, g);
-                    }
-                }
+                renderers.Add(bc as NodeRenderer);
             }
 
-            //iterate through all of the objects, rendering each
-            for (int i = objSize -1 ; i >= 0; i--)
+            //pre-render each renderer
+            for (int i = renderers.Count - 1; i >= 0; i--)
             {
-                //store in a temp value for readability and performance
-                BaseObject obj = objects[i];
-
-                //get the size of the object's component list
-                int compSize = obj.components.Count;
-
-                //iterate through all components in the object, checking if each is a node renderer
-                for (int j = 0; j < obj.components.Count; j++)
-                {
-                    //store the base value
-                    BaseComponent comp = obj.components[j];
-
-                    //check if the component is an event listener
-                    if (comp is NodeRenderer)
-                    {
-                        //cast the base object to it's true type
-                        NodeRenderer renderer = comp as NodeRenderer;
-
-                        renderer.Render(this, g);
-                    }
-                }
+                renderers[i].PreRender(this, g);
             }
 
-            //iterate through all of the objects, post-rendering each
-            for (int i = objSize - 1; i >= 0; i--)
+            //render each renderer
+            for (int i = renderers.Count - 1; i >= 0; i--)
             {
-                //store in a temp value for readability and performance
-                BaseObject obj = objects[i];
+                renderers[i].Render(this, g);
+            }
 
-                //get the size of the object's component list
-                int compSize = obj.components.Count;
-
-                //iterate through all components in the object, checking if each is a node renderer
-                for (int j = 0; j < obj.components.Count; j++)
-                {
-                    //store the base value
-                    BaseComponent comp = obj.components[j];
-
-                    //check if the component is an event listener
-                    if (comp is NodeRenderer)
-                    {
-                        //cast the base object to it's true type
-                        NodeRenderer renderer = comp as NodeRenderer;
-
-                        renderer.PostRender(this, g);
-                    }
-                }
+            //post-render each renderer
+            for (int i = renderers.Count - 1; i >= 0; i--)
+            {
+                renderers[i].PostRender(this, g);
             }
 
         }
@@ -546,7 +533,7 @@ namespace AIEToolProject
             SetScrollableArea(windowPadding);
 
             //force the form to re-draw itself
-            Invalidate();          
+            Invalidate();
             this.Refresh();
         }
 
@@ -565,6 +552,23 @@ namespace AIEToolProject
             safeScrollPosition = new Point(this.hScrollBar.Value, safeScrollPosition.Y);
 
             SetScrollableArea(windowPadding);
+
+            //define a list of nodes to check
+            List<BaseComponent> comps = GetComponentsOfType(typeof(LivePosition));
+
+            List<LivePosition> livePos = new List<LivePosition>();
+
+            //convert base component list to component list
+            foreach (BaseComponent bc in comps)
+            {
+                livePos.Add(bc as LivePosition);
+            }
+
+            //update each live position component
+            foreach (LivePosition ls in livePos)
+            {
+                ls.x = safeScrollPosition.X;
+            }
 
             //force the form to re-draw itself
             Invalidate();
@@ -587,9 +591,70 @@ namespace AIEToolProject
 
             SetScrollableArea(windowPadding);
 
+            //define a list of nodes to check
+            List<BaseComponent> comps = GetComponentsOfType(typeof(LivePosition));
+
+            List<LivePosition> livePos = new List<LivePosition>();
+
+            //convert base component list to component list
+            foreach (BaseComponent bc in comps)
+            {
+                livePos.Add(bc as LivePosition);
+            }
+
+            //update each live position component
+            foreach (LivePosition ls in livePos)
+            {
+                ls.y = safeScrollPosition.Y;
+            }
+
             //force the form to re-draw itself
             Invalidate();
             this.Refresh();
+        }
+
+
+        /*
+        * GetComponentsOfType
+        * 
+        * gets a list of all components
+        * that match the specified type
+        * 
+        * @param Type type - the type to match the components with
+        * @returns List<BaseComponent> - the list of components with matching types
+        */
+        private List<BaseComponent> GetComponentsOfType(Type type)
+        {
+            //createa  new list of components
+            List<BaseComponent> components = new List<BaseComponent>();
+
+            //get the size of the objects list
+            int objSize = state.objects.Count;
+
+            //iterate through all of the objects, testing each for a matching type
+            for (int i = objSize - 1; i >= 0; i--)
+            {
+                //store in a temp value for readability and performance
+                BaseObject obj = state.objects[i];
+
+                //get the size of the object's component list
+                int compSize = obj.components.Count;
+
+                //iterate through all components in the object, checking if each matches the specified type
+                for (int j = 0; j < obj.components.Count; j++)
+                {
+                    //store the base value
+                    BaseComponent comp = obj.components[j];
+
+                    //check if the component matches the specified type
+                    if (comp.GetType() == type)
+                    {
+                        components.Add(comp);
+                    }
+                }
+            }
+
+            return components;
         }
     }
 }

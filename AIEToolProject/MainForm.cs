@@ -58,7 +58,12 @@ namespace AIEToolProject
         private void actionButton_Click(object sender, EventArgs e)
         {
             EditorForm activeChild = (this.ActiveMdiChild as EditorForm);
-            activeChild.spawnType = NodeType.ACTION;
+
+            //check that there is a child
+            if (activeChild != null)
+            {
+                activeChild.spawnType = NodeType.ACTION;
+            }
         }
 
 
@@ -74,7 +79,12 @@ namespace AIEToolProject
         private void conditionButton_Click(object sender, EventArgs e)
         {
             EditorForm activeChild = (this.ActiveMdiChild as EditorForm);
-            activeChild.spawnType = NodeType.CONDITION;
+
+            //check that there is a child
+            if (activeChild != null)
+            {
+                activeChild.spawnType = NodeType.CONDITION;
+            }
         }
 
 
@@ -90,7 +100,12 @@ namespace AIEToolProject
         private void selectorButton_Click(object sender, EventArgs e)
         {
             EditorForm activeChild = (this.ActiveMdiChild as EditorForm);
-            activeChild.spawnType = NodeType.SELECTOR;
+
+            //check that there is a child
+            if (activeChild != null)
+            {
+                activeChild.spawnType = NodeType.SELECTOR;
+            }
         }
 
         /*
@@ -105,7 +120,12 @@ namespace AIEToolProject
         private void sequenceButton_Click(object sender, EventArgs e)
         {
             EditorForm activeChild = (this.ActiveMdiChild as EditorForm);
-            activeChild.spawnType = NodeType.SEQUENCE;
+
+            //check that there is a child
+            if (activeChild != null)
+            {
+                activeChild.spawnType = NodeType.SEQUENCE;
+            }
         }
 
 
@@ -121,7 +141,12 @@ namespace AIEToolProject
         private void decoratorButton_Click(object sender, EventArgs e)
         {
             EditorForm activeChild = (this.ActiveMdiChild as EditorForm);
-            activeChild.spawnType = NodeType.DECORATOR;
+
+            //check that there is a child
+            if (activeChild != null)
+            {
+                activeChild.spawnType = NodeType.DECORATOR;
+            }
         }
 
 
@@ -148,7 +173,6 @@ namespace AIEToolProject
             //de-serialise a file 
             if (TreeHelper.LoadState(newChild))
             {
-
                 newChild.MdiParent = this;
 
                 //open the window
@@ -267,7 +291,7 @@ namespace AIEToolProject
         */
         private void exportButton_Click(object sender, EventArgs e)
         {
-            //check that the program has a window open
+            //check that the program has a editor open
             if (ActiveMdiChild != null)
             {
                 //create a export menu
@@ -280,21 +304,23 @@ namespace AIEToolProject
             }
         }
 
+
+        /*
+        * exportButton_Click 
+        * 
+        * callback when the undo button is clicked
+        * 
+        * @param object sender - the object that sent the event
+        * @param EventArgs e - description of the event
+        * @returns void
+        */
         private void undoButton_Click(object sender, EventArgs e)
         {
-
+            //check that the program has a editor open
+            if (ActiveMdiChild != null)
+            {
+                (ActiveMdiChild as EditorForm).Undo();
+            }
         }
-
-        private void loopTimer_Tick(object sender, EventArgs e)
-        {
-
-        }
-
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-
-        }
-
-       
     }
 }

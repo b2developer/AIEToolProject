@@ -48,6 +48,29 @@ namespace AIEToolProject.Source
 
 
         /*
+        * Clone 
+        * overrides BaseComponent's Clone()
+        * 
+        * creates another object identical to this
+        * 
+        * @param object - the object with matching member variables
+        */
+        public override object Clone()
+        {
+            //create a new instance of the object
+            EventListener other = new EventListener();
+
+            other.index = index;
+
+            other.mousePressed = mousePressed;
+            other.mouseReleased = mouseReleased;
+            other.mouseMoved = mouseMoved;
+
+            return other as object;
+        }
+
+
+        /*
         * DefaultCallback
         * 
         * default call back function for all call back delegate objects

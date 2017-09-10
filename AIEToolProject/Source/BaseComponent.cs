@@ -15,12 +15,13 @@ namespace AIEToolProject.Source
 {
     /*
     * class BaseComponent
+    * implements ICloneable
     * 
     * the base component that gives base objects functionality
     * 
     * author: Bradley Booth, Academy of Interactive Entertainment, 2017
     */
-    public class BaseComponent
+    public class BaseComponent : ICloneable, IInitialised
     {
         [XmlIgnore]
         //reference to the game object holding the component
@@ -38,5 +39,53 @@ namespace AIEToolProject.Source
         {
 
         }
+
+
+        /*
+        * Clone
+        * implements ICloneable's Clone()
+        * virtual function
+        * 
+        * creates an object with identical properties to this
+        * 
+        * @returns object - a clone of the object 
+        */
+        public virtual object Clone() { return new object(); }
+
+
+        /*
+        * Stitch 
+        * virtual function
+        * 
+        * re-links references after the base object is duplicated
+        * 
+        * @param List<BaseComponent> components - list of components
+        * @returns void
+        */
+        public virtual void Stitch(List<BaseComponent> components) { }
+
+
+        /*
+        * Initialise 
+        * implements IInitialised's Initialise()
+        * virtual function
+        * 
+        * called when the object is activated
+        * 
+        * @returns void
+        */
+        public virtual void Initialise() { }
+
+
+        /*
+        * DeInitialise
+        * implements IInitialised's DeInitialise()
+        * virtual function
+        * 
+        * called when the object is de-activated
+        * 
+        * @returns void
+        */
+        public virtual void DeInitialise() { }
     }
 }

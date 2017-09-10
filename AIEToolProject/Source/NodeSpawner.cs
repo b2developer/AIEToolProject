@@ -13,14 +13,13 @@ namespace AIEToolProject.Source
     /*
     * class NodeSpawner
     * child object of BaseComponent
-    * implements ICloneable
     * 
     * a component that can create additional node
     * objects when called upon
     * 
     * author: Bradley Booth, Academy of Interactive Entertainment, 2017
     */
-    class NodeSpawner : BaseComponent, ICloneable
+    class NodeSpawner : BaseComponent
     {
         //radii of the spawned node's colliders
         public float nodeRadius = 45.0f;
@@ -38,18 +37,23 @@ namespace AIEToolProject.Source
 
         /*
         * Clone 
-        * implement's ICloneable's Clone()
+        * overrides BaseComponent's Clone()
+        * 
         * creates another object identical to this
-        * km
-        * @param object - the object with matching member variables
+        * 
+        * @returns object - the object with matching member variables
         */
-        public object Clone()
+        public override object Clone()
         {
             //create a new node spawner
             NodeSpawner other = new NodeSpawner();
 
-            other.nodeRadius = 45.0f;
-            other.connRadius = 15.0f;
+            other.index = index;
+
+            other.nodeRadius = nodeRadius;
+            other.connRadius = connRadius;
+
+            other.form = form;
 
             return other as object;
         }
@@ -104,6 +108,8 @@ namespace AIEToolProject.Source
             //remove this event listener from the list (only if it was already in there)
             if (form.exclusives.Contains(eventListener))
             {
+                form.Record();
+
                 form.exclusives.Remove(eventListener);
 
                 //spawn a node
@@ -149,7 +155,7 @@ namespace AIEToolProject.Source
                 obj.components.Add(rendererComp as BaseComponent);
                 obj.components.Add(listenerComp as BaseComponent);
 
-                form.objects.Insert(0, obj);
+                form.state.objects.Insert(0, obj);
             }
         }
 
